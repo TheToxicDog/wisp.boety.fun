@@ -105,6 +105,7 @@
           </form>
           <div class="btn-group">
             <button class="icon-btn" id="homeBtn" data-ui="browser.toolbar.home" aria-label="Home"><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"/></svg></button>
+            <button class="icon-btn" id="blankBtn" data-ui="browser.toolbar.blankwindow" aria-label="Open in about:blank window"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="13" height="13" rx="2"/><path d="M14 3h7v7M21 3l-8 8"/></svg></button>
             <button class="icon-btn" id="fullBtn" data-ui="browser.toolbar.fullscreen" aria-label="Focus mode"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
           </div>
         </div>
@@ -151,11 +152,21 @@
             <article class="card" data-ui="gateway.transport">
               <header><h3>Transport</h3><span class="badge" id="swBadge">—</span></header>
               <dl class="kv">
-                <div><dt>Isolation runtime</dt><dd>Scramjet (service worker)</dd></div>
+                <div><dt>Isolation runtime</dt><dd>Scramjet SW · scope <span class="mono">/service/</span></dd></div>
                 <div><dt>Mux</dt><dd>bare-mux shared worker</dd></div>
                 <div><dt>Transport</dt><dd>epoxy-tls (WebAssembly)</dd></div>
                 <div><dt>Relay</dt><dd class="mono" id="wispUrlView">—</dd></div>
                 <div><dt>Stream limit</dt><dd id="gwLimit">—</dd></div>
+                <div><dt>Outbound sockets</dt><dd id="gwUdp">—</dd></div>
+              </dl>
+            </article>
+
+            <article class="card" data-ui="gateway.edge">
+              <header><h3>Edge &amp; ingress</h3><span class="badge" id="edgeBadge">—</span></header>
+              <dl class="kv">
+                <div><dt>CDN</dt><dd id="edgeProvider">—</dd></div>
+                <div><dt>Edge location</dt><dd id="edgeColo">—</dd></div>
+                <div><dt>Your country</dt><dd id="edgeCountry">—</dd></div>
               </dl>
             </article>
 
@@ -166,15 +177,13 @@
             </article>
 
             <article class="card wide" data-ui="gateway.architecture">
-              <header><h3>Request path</h3></header>
+              <header><h3>Architecture layers</h3></header>
               <ol class="flow">
-                <li><b>Client container</b><span>Sandboxed iframe runs untrusted page code</span></li>
-                <li><b>Scramjet SW</b><span>Intercepts &amp; rewrites every fetch</span></li>
-                <li><b>bare-mux</b><span>Shared worker routes to the active transport</span></li>
-                <li><b>epoxy WASM</b><span>TLS terminated in-browser, end-to-end</span></li>
-                <li><b>Wisp over WSS</b><span>Binary frames, many streams on one socket</span></li>
-                <li><b>Nginx → Node</b><span>Upgrade proxied to the Wisp server</span></li>
-                <li><b>Origin</b><span>TCP stream opened to the destination</span></li>
+                <li><b>Presentation</b><span>Search bar, navigation and an isolated iframe or about:blank window</span></li>
+                <li><b>Interception</b><span>Scramjet service worker rewrites HTML, CSS and JS; location, top and cookies virtualized in IndexedDB</span></li>
+                <li><b>Transport bridge</b><span>bare-mux + epoxy WASM run TLS in-browser and pack requests into Wisp frames</span></li>
+                <li><b>Edge ingress</b><span>Cloudflare Anycast terminates public SSL and shields the origin IP</span></li>
+                <li><b>Origin relay</b><span>Nginx → wisp-js demultiplexes streams into outbound TCP/UDP sockets</span></li>
               </ol>
             </article>
           </div>

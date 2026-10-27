@@ -1,3 +1,5 @@
+import { WISP_URL, IS_LOCAL } from "./config.js";
+
 // Tiny persisted store. Everything is per-device (localStorage) and every
 // access is guarded so private mode / blocked storage never breaks the UI.
 const KEY = "wisp.settings.v1";
@@ -47,7 +49,8 @@ export const notesStore = {
 
 export function wispUrl() {
   if (settings.wispUrl) return settings.wispUrl;
-  return `${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/wisp/`;
+  if (IS_LOCAL) return `ws://${location.host}/wisp/`;
+  return WISP_URL;
 }
 
 export function resetAll() {

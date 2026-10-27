@@ -1,5 +1,6 @@
 // Gateway & Streams view: live health from /api/status plus a latency probe.
 import { wispUrl } from "./store.js";
+import { SW_SCOPE } from "./config.js";
 import { $ } from "./ui.js";
 
 let timer;
@@ -27,11 +28,19 @@ async function refresh() {
     $("#gwMem").textContent = s.memoryMB + " MB";
     $("#gwLimit").textContent = `${s.streamLimit} streams / session`;
     $("#gwMotd").textContent = s.motd ? `MOTD: ${s.motd} · Node ${s.node}` : "";
+    $("#gwUdp").textContent = s.udp ? "TCP + UDP" : "TCP only";
+    const cf = s.edge?.provider === "Cloudflare";
+    $("#edgeBadge").textContent = cf ? "Proxied" : "Direct";
+    $("#edgeBadge").className = "badge " + (cf ? "ok" : "");
+    $("#edgeProvider").textContent = cf ? "Cloudflare (Anycast)" : "None — origin reached directly";
+    $("#edgeColo").textContent = s.edge?.colo || "—";
+    $("#edgeCountry").textContent = s.edge?.country || "—";
   } catch {
     badge.textContent = "Offline";
     badge.className = "badge bad";
   }
-  const sw = navigator.serviceWorker?.controller;
+  const reg = await navigator.serviceWorker?.getRegistration(SW_SCOPE);
+  const sw = reg?.active;
   $("#swBadge").textContent = sw ? "Active" : "Not active";
   $("#swBadge").className = "badge " + (sw ? "ok" : "bad");
   $("#wispUrlView").textContent = wispUrl();

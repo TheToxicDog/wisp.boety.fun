@@ -2,3 +2,7 @@ node_modules/
 .env
 *.log
 .DS_Store
+# Runtime bundles copied from node_modules by `npm install` (scripts/assets.js)
+public/scram/
+public/baremux/
+public/epoxy/

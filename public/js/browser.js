@@ -1,6 +1,7 @@
 // Isolated browser: tabs of Scramjet frames whose traffic flows
 // SW → bare-mux → epoxy (WASM TLS) → Wisp WebSocket relay.
 import { settings, set, wispUrl } from "./store.js";
+import { SW_URL, SW_SCOPE } from "./config.js";
 import { $, toast, escapeHtml, hue, icon } from "./ui.js";
 
 const X = icon('<path d="M6 6l12 12M18 6L6 18"/>');
@@ -13,11 +14,25 @@ const tabs = [];
 let active = null;
 let nextId = 1;
 
+// navigator.serviceWorker.ready never settles here: this page sits outside
+// the /service/ scope. Wait on the registration's own worker instead.
+function activated(reg) {
+  const sw = reg.installing || reg.waiting || reg.active;
+  if (sw.state === "activated") return Promise.resolve(reg);
+  return new Promise((resolve, reject) => {
+    sw.addEventListener("statechange", () => {
+      if (sw.state === "activated") resolve(reg);
+      if (sw.state === "redundant") reject(new Error("Service worker failed to install"));
+    });
+  });
+}
+
 export function initRuntime(onStatus) {
   ready = (async () => {
     if (!("serviceWorker" in navigator)) throw new Error("Service workers are unavailable in this browser");
     const { ScramjetController } = window.$scramjetLoadController();
     scramjet = new ScramjetController({
+      prefix: SW_SCOPE,
       files: {
         wasm: "/scram/scramjet.wasm.wasm",
         all: "/scram/scramjet.all.js",
@@ -25,8 +40,11 @@ export function initRuntime(onStatus) {
       },
     });
     await scramjet.init();
-    await navigator.serviceWorker.register("/sw.js");
-    await navigator.serviceWorker.ready;
+    // Drop workers left at other scopes by earlier versions of this site.
+    for (const r of await navigator.serviceWorker.getRegistrations()) {
+      if (r.scope !== location.origin + SW_SCOPE) await r.unregister();
+    }
+    await activated(await navigator.serviceWorker.register(SW_URL, { scope: SW_SCOPE }));
     connection = new window.BareMux.BareMuxConnection("/baremux/worker.js");
     await setTransport();
   })();
@@ -134,6 +152,21 @@ export async function navigate(input, tab = active) {
   persist();
 }
 
+// Renders the active page in a bare about:blank window instead of the tab frame.
+function openBlank() {
+  if (!active.url) return toast("Open a page first");
+  const win = window.open("about:blank", "_blank");
+  if (!win) return toast("Pop-up blocked — allow pop-ups for this site");
+  const doc = win.document;
+  doc.title = active.title;
+  doc.body.style.margin = "0";
+  const f = doc.createElement("iframe");
+  f.src = new URL(scramjet.encodeUrl(active.url), location.origin).href;
+  f.allow = "fullscreen; clipboard-write; autoplay";
+  f.style.cssText = "position:fixed;inset:0;width:100%;height:100%;border:0";
+  doc.body.appendChild(f);
+}
+
 function loading(on) {
   const p = $("#progress");
   p.classList.toggle("on", on);
@@ -189,6 +222,7 @@ export function initBrowser() {
     select(active);
     persist();
   });
+  $("#blankBtn").addEventListener("click", openBlank);
   $("#fullBtn").addEventListener("click", () => {
     const on = document.getElementById("app").classList.toggle("focus");
     toast(on ? "Focus mode — tap again to exit" : "Focus mode off");

@@ -5,7 +5,9 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "postinstall": "node scripts/assets.js",
+    "verify-assets": "node scripts/assets.js --verify"
   },
   "repository": {
     "type": "git",

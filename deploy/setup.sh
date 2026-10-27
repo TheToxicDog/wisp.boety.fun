@@ -74,7 +74,7 @@ echo "17 4 * * 1 root $DIR/scripts/cloudflare-sync.sh" > /etc/cron.d/cloudflare-
 
 step "Health check"
 sleep 2
-if curl -fsS http://127.0.0.1:8080/api/status >/dev/null; then
+if curl -fsS http://127.0.0.1:8080/api/auth/state >/dev/null; then
   echo "gateway: OK"
 else
   echo "gateway: NOT RESPONDING — run: journalctl -u wisp -n 50 --no-pager" >&2
@@ -83,3 +83,6 @@ fi
 
 IP=$(curl -4 -fsS https://ifconfig.me 2>/dev/null || hostname -I | awk '{print $1}')
 printf '\n\033[1;32mDone.\033[0m Server IP for the Cloudflare DNS record: \033[1m%s\033[0m\n' "$IP"
+if [ -s /var/lib/wisp/setup-code ]; then
+  printf '\nOpen https://%s and create your master account with setup code: \033[1;33m%s\033[0m\n' "$DOMAIN" "$(cat /var/lib/wisp/setup-code)"
+fi

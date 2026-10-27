@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0e1116">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Wisp">
+  <title>Wisp Sign In</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icons/icon-180.png">
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body class="auth-page">
+  <main class="auth" data-ui="login">
+    <div class="auth-card" data-ui="login.card">
+      <div class="auth-brand" data-ui="login.brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32"><path d="M6 20c4-10 10-12 20-12-6 3-8 7-8 12 0 3 2 5 5 5-8 2-15-1-17-5z" fill="currentColor"/></svg>
+        </div>
+        <div>
+          <div class="brand-name">Wisp</div>
+          <div class="brand-sub">Isolation Gateway</div>
+        </div>
+      </div>
+
+      <!-- Tabs for normal visitors -->
+      <div class="seg auth-tabs" id="tabs" data-ui="login.tabs" role="tablist" hidden>
+        <button data-tab="signin" class="on">Sign in</button>
+        <button data-tab="signup">Request access</button>
+      </div>
+
+      <form class="auth-form" id="signin" data-ui="login.signin" hidden>
+        <label>Username<input name="username" autocomplete="username" autocapitalize="off" spellcheck="false" required></label>
+        <label>Password<input name="password" type="password" autocomplete="current-password" required></label>
+        <p class="auth-error" role="alert"></p>
+        <button class="btn primary" type="submit">Sign in</button>
+      </form>
+
+      <form class="auth-form" id="signup" data-ui="login.signup" hidden>
+        <label>Username<input name="username" autocomplete="username" autocapitalize="off" spellcheck="false" minlength="3" maxlength="32" required></label>
+        <label>Password<input name="password" type="password" autocomplete="new-password" minlength="8" required></label>
+        <label>Confirm password<input name="confirm" type="password" autocomplete="new-password" minlength="8" required></label>
+        <label>Who are you? <small class="muted">(helps the owner approve you)</small><input name="note" maxlength="200" placeholder="e.g. Sam from school"></label>
+        <p class="auth-error" role="alert"></p>
+        <button class="btn primary" type="submit">Request access</button>
+      </form>
+
+      <!-- Shown once, before any master account exists -->
+      <form class="auth-form" id="setup" data-ui="login.setup" hidden>
+        <h2>Create the master account</h2>
+        <p class="muted small">Get the setup code on your VPS with:<br><code class="cmd">sudo cat /var/lib/wisp/setup-code</code></p>
+        <label>Setup code<input name="code" autocapitalize="off" spellcheck="false" autocomplete="one-time-code" required></label>
+        <label>Username<input name="username" autocomplete="username" autocapitalize="off" spellcheck="false" minlength="3" maxlength="32" required></label>
+        <label>Password<input name="password" type="password" autocomplete="new-password" minlength="8" required></label>
+        <label>Confirm password<input name="confirm" type="password" autocomplete="new-password" minlength="8" required></label>
+        <p class="auth-error" role="alert"></p>
+        <button class="btn primary" type="submit">Create master account</button>
+      </form>
+
+      <!-- Required after a password reset -->
+      <form class="auth-form" id="change" data-ui="login.change" hidden>
+        <h2>Choose a new password</h2>
+        <p class="muted small">Your password was set by the owner. Pick your own to continue.</p>
+        <label>Temporary password<input name="current" type="password" autocomplete="current-password" required></label>
+        <label>New password<input name="next" type="password" autocomplete="new-password" minlength="8" required></label>
+        <label>Confirm new password<input name="confirm" type="password" autocomplete="new-password" minlength="8" required></label>
+        <p class="auth-error" role="alert"></p>
+        <button class="btn primary" type="submit">Save and continue</button>
+      </form>
+
+      <div class="auth-msg" id="pending" data-ui="login.pending" hidden>
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        <h2>Waiting for approval</h2>
+        <p class="muted">Your request was sent. You'll be able to sign in once the owner approves it.</p>
+        <button class="btn" id="backToSignin">Back to sign in</button>
+      </div>
+    </div>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="/js/login.js"></script>
+</body>
+</html>

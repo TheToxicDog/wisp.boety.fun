@@ -117,6 +117,32 @@ Update: `cd /opt/wisp.boety.fun && sudo git pull && sudo npm ci --omit=dev && su
 Every element has a stable `data-ui` id (e.g. `browser.toolbar.address`), so each note
 points at the exact code to change.
 
+## Accounts
+
+Every person has their own account; the app, the status API and the Wisp relay all
+require an approved, signed-in account.
+
+- **Master account**: on first start the server writes a one-time setup code to
+  `/var/lib/wisp/setup-code` (the setup script prints it). Open the site and use it to
+  create the master account; the code is deleted afterwards.
+- **Request access**: anyone can sign up, but the account stays *pending* and can't
+  sign in until the master approves it under **People**.
+- **People** (master only): approve or reject requests, add people (blank password =
+  generated), reset passwords (shows a temporary password once; they must choose
+  their own at next sign-in), sign someone out everywhere, disable/enable, delete.
+  Disabling, resetting or deleting cuts their live relay connection immediately.
+- **Account**: everyone can change their own password (other devices get signed out).
+
+Passwords are hashed with scrypt; sessions are random 256-bit tokens stored hashed, in an
+HttpOnly, SameSite=Lax cookie, valid 30 days. Data lives in `DATA_DIR` (`/var/lib/wisp`).
+Sign-in, sign-up and setup are rate-limited.
+
+**Locked out of the master account?** On the VPS:
+
+```sh
+sudo systemctl stop wisp && sudo -u wisp DATA_DIR=/var/lib/wisp node /opt/wisp.boety.fun/scripts/admin.js reset-password YOURNAME; sudo systemctl start wisp
+```
+
 ## Pinned versions
 
 `@mercuryworkshop/epoxy-transport` is pinned to `2.1.29`: the 3.x line expects a newer

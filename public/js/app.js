@@ -4,13 +4,17 @@ import { $, $$, toast, openDrawer, closeDrawer } from "./ui.js";
 import { initRuntime, initBrowser, setTransport } from "./browser.js";
 import { initGateway, showGateway } from "./gateway.js";
 import { initAnnotate } from "./annotate.js";
+import { initAccount, showAdmin } from "./accounts.js";
 
 const app = $("#app");
+let me = null;
 const ACCENTS = ["#5b8cff", "#7c5cff", "#e05297", "#f07c3a", "#1fb57a", "#14a3c7", "#8a919e"];
 const TITLES = {
   browser: "Isolated Browser",
   gateway: "Gateway & Streams",
   settings: "Settings",
+  account: "Account",
+  admin: "People",
   "module-2": "Module 2",
   "module-3": "Module 3",
 };
@@ -18,7 +22,8 @@ const TITLES = {
 // ───────── Routing ─────────
 function route() {
   const view = location.hash.replace("#/", "") || "browser";
-  const known = view in TITLES ? view : "browser";
+  let known = view in TITLES ? view : "browser";
+  if (known === "admin" && me?.role !== "admin") known = "browser";
   const soon = known.startsWith("module-");
   $$(".view").forEach((v) => (v.hidden = true));
   $(soon ? "#view-soon" : `#view-${known}`).hidden = false;
@@ -26,6 +31,7 @@ function route() {
   $("#viewTitle").textContent = TITLES[known];
   $$(".nav-item").forEach((a) => a.classList.toggle("active", a.dataset.view === known));
   showGateway(known === "gateway");
+  showAdmin(known === "admin");
   closeDrawer();
 }
 
@@ -130,6 +136,7 @@ initAnnotate();
 initGateway();
 initBrowser();
 
+me = await initAccount();
 addEventListener("hashchange", route);
 route();
 

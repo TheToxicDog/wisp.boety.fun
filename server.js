@@ -6,6 +6,7 @@ import { dirname, join } from "node:path";
 import express from "express";
 import { server as wisp, logging } from "@mercuryworkshop/wisp-js/server";
 import { verifyAssets } from "./scripts/assets.js";
+import { authRouter, requireUser, requirePage, authorizeUpgrade, ensureSetupCode, userFromRequest, flush } from "./lib/auth.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT || 8080);
@@ -32,8 +33,12 @@ const stats = { started: Date.now(), sessions: 0, totalSessions: 0 };
 
 const app = express();
 app.disable("x-powered-by");
+app.set("trust proxy", "loopback"); // Nginx on localhost sets X-Forwarded-Proto
+ensureSetupCode();
 
-app.get("/api/status", (req, res) => {
+app.use("/api", authRouter());
+
+app.get("/api/status", requireUser, (req, res) => {
   // Cloudflare tags proxied requests; the ray id ends with the edge colo code.
   const ray = req.get("cf-ray");
   res.set("Cache-Control", "no-store");
@@ -54,15 +59,29 @@ app.get("/api/status", (req, res) => {
   });
 });
 
-app.use(express.static(join(__dirname, "public"), {
-  setHeaders: (res) => res.setHeader("Cache-Control", "no-cache"),
-}));
-app.use((_req, res) => res.status(404).sendFile(join(__dirname, "public", "index.html")));
+const noCache = (res) => res.setHeader("Cache-Control", "no-cache");
+const appShell = (_req, res) => { noCache(res); res.sendFile(join(__dirname, "views", "app.html")); };
+
+app.get("/login", (req, res) => {
+  const auth = userFromRequest(req);
+  if (auth && !auth.user.mustChangePassword) return res.redirect(302, "/");
+  noCache(res);
+  res.sendFile(join(__dirname, "public", "login.html"));
+});
+app.get(["/", "/index.html"], requirePage, appShell);
+
+// Public static files: login page assets and the open-source runtime bundles.
+app.use(express.static(join(__dirname, "public"), { index: false, setHeaders: noCache }));
+app.get("/{*path}", requirePage, appShell);
 
 const server = createServer(app);
 
 server.on("upgrade", (req, socket, head) => {
   if (!req.url.startsWith(WISP_PATH)) return socket.end();
+  if (!authorizeUpgrade(req, socket)) {
+    socket.end("HTTP/1.1 401 Unauthorized\r\nConnection: close\r\nContent-Length: 0\r\n\r\n");
+    return;
+  }
   stats.sessions++;
   stats.totalSessions++;
   socket.once("close", () => stats.sessions--);
@@ -74,5 +93,8 @@ server.listen(PORT, HOST, () => {
 });
 
 for (const sig of ["SIGINT", "SIGTERM"]) {
-  process.on(sig, () => server.close(() => process.exit(0)));
+  process.on(sig, () => {
+    flush(); // persist pending user/session writes before exit
+    process.exit(0);
+  });
 }

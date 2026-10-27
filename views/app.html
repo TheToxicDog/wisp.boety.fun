@@ -54,6 +54,14 @@
         </a>
 
         <div class="nav-label">System</div>
+        <a href="#/admin" class="nav-item" data-view="admin" data-ui="sidebar.nav.admin" id="navAdmin" hidden>
+          <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18.5 14.8c1.7.8 2.7 2.6 3 5.2"/></svg>
+          <span>People</span><em class="tag alert" id="pendingTag" hidden>0</em>
+        </a>
+        <a href="#/account" class="nav-item" data-view="account" data-ui="sidebar.nav.account">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4.5 4.2-7 8-7s7 2.5 8 7"/></svg>
+          <span id="navAccountName">Account</span>
+        </a>
         <a href="#/settings" class="nav-item" data-view="settings" data-ui="sidebar.nav.settings">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>
           <span>Settings</span>
@@ -251,6 +259,55 @@
         </div>
       </section>
 
+      <!-- Account view -->
+      <section class="view" id="view-account" data-ui="account" hidden>
+        <div class="scroll">
+          <div class="settings">
+            <div class="group" data-ui="account.profile">
+              <h3>Signed in as</h3>
+              <div class="row">
+                <span><b id="acctName">—</b><small id="acctRole"></small></span>
+                <button class="btn sm" id="signOut" data-ui="account.signout">Sign out</button>
+              </div>
+            </div>
+            <form class="group" id="pwForm" data-ui="account.password" autocomplete="on">
+              <h3>Change password</h3>
+              <label class="row stack"><span><b>Current password</b></span><input type="password" name="current" autocomplete="current-password" required></label>
+              <label class="row stack"><span><b>New password</b><small>At least 8 characters. Your other devices will be signed out.</small></span><input type="password" name="next" autocomplete="new-password" minlength="8" required></label>
+              <label class="row stack"><span><b>Confirm new password</b></span><input type="password" name="confirm" autocomplete="new-password" minlength="8" required></label>
+              <div class="row"><span class="auth-error" id="pwError"></span><button class="btn primary sm" type="submit">Update password</button></div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- Admin view (master account only) -->
+      <section class="view" id="view-admin" data-ui="admin" hidden>
+        <div class="scroll">
+          <div class="settings wide">
+            <div class="group" data-ui="admin.pending">
+              <h3>Waiting for approval <span class="count-pill" id="pendingCount">0</span></h3>
+              <div class="people" id="pendingList"></div>
+            </div>
+            <form class="group" id="addUser" data-ui="admin.add" autocomplete="off">
+              <h3>Add a person</h3>
+              <div class="row stack">
+                <span><b>New account</b><small>Leave the password blank to generate one. They'll choose their own when they first sign in.</small></span>
+                <div class="inline wrap">
+                  <input name="username" placeholder="username" autocapitalize="off" spellcheck="false" minlength="3" maxlength="32" required>
+                  <input name="password" type="text" placeholder="password (optional)" autocapitalize="off" spellcheck="false">
+                  <button class="btn primary sm" type="submit">Add</button>
+                </div>
+              </div>
+            </form>
+            <div class="group" data-ui="admin.people">
+              <h3>People</h3>
+              <div class="people" id="peopleList"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- Placeholder module view -->
       <section class="view" id="view-soon" data-ui="module" hidden>
         <div class="empty">
@@ -288,6 +345,20 @@
         <button type="submit" class="btn primary">Save note</button>
       </div>
     </form>
+  </div>
+
+  <!-- One-time password reveal -->
+  <div class="sheet" id="secretSheet" hidden>
+    <div class="sheet-card" data-ui="admin.secret">
+      <div class="sheet-grab"></div>
+      <h3 id="secretTitle">Temporary password</h3>
+      <p class="muted small" id="secretHint">Send this to them. It's shown only once; they'll pick their own password when they sign in.</p>
+      <code class="secret" id="secretValue"></code>
+      <div class="sheet-actions">
+        <button class="btn ghost" id="secretClose">Done</button>
+        <button class="btn primary" id="secretCopy">Copy</button>
+      </div>
+    </div>
   </div>
 
   <div class="annotate-banner" id="annotateBanner" hidden>

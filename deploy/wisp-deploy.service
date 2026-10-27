@@ -1,0 +1,10 @@
+# /etc/systemd/system/wisp-deploy.service — see deploy/autodeploy.sh
+[Unit]
+Description=Wisp auto-deploy from GitHub master
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/opt/wisp.boety.fun/deploy/autodeploy.sh
+TimeoutStartSec=15min

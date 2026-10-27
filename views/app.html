@@ -44,9 +44,9 @@
         </a>
 
         <div class="nav-label">Modules</div>
-        <a href="#/module-2" class="nav-item is-soon" data-view="module-2" data-ui="sidebar.nav.module2">
-          <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 9v6M9 12h6"/></svg>
-          <span>Module 2</span><em class="tag">Soon</em>
+        <a href="#/recipes" class="nav-item" data-view="recipes" data-ui="sidebar.nav.recipes">
+          <svg viewBox="0 0 24 24"><path d="M6 3h11a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6z"/><path d="M6 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2"/><path d="M10 8h6M10 12h6M10 16h3"/></svg>
+          <span>Recipes</span>
         </a>
         <a href="#/module-3" class="nav-item is-soon" data-view="module-3" data-ui="sidebar.nav.module3">
           <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 9v6M9 12h6"/></svg>
@@ -255,6 +255,72 @@
                 <button class="btn danger sm" id="resetAll">Reset</button>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Recipes view -->
+      <section class="view" id="view-recipes" data-ui="recipes" hidden>
+        <div class="scroll">
+          <div class="recipes">
+            <form class="recipe-bar" id="recipeForm" data-ui="recipes.bar" autocomplete="off">
+              <div class="omnibox">
+                <svg class="lock" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>
+                <input id="recipeUrl" type="text" inputmode="url" enterkeyhint="go" autocapitalize="off" spellcheck="false" placeholder="Paste a recipe link">
+              </div>
+              <button class="btn primary" type="submit" id="recipeGo">Get recipe</button>
+            </form>
+
+            <div class="recipe-empty" id="recipeEmpty" data-ui="recipes.empty">
+              <p class="muted tip">Tip: put <code>wisp.boety.fun/</code> in front of any recipe link, e.g.
+                <code>wisp.boety.fun/https://floralapron.com/small-batch-cherry-jam/</code></p>
+              <div class="section-label" id="recentLabel" hidden>Recent</div>
+              <div class="recent-grid" id="recentList" data-ui="recipes.recent"></div>
+            </div>
+
+            <div class="recipe-loading" id="recipeLoading" hidden>
+              <div class="spinner"></div><span class="muted">Reading the recipe…</span>
+            </div>
+
+            <div class="recipe-error" id="recipeError" data-ui="recipes.error" hidden>
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg>
+              <div><b>Couldn't read that recipe</b><p class="muted" id="recipeErrorMsg"></p></div>
+            </div>
+
+            <article class="recipe" id="recipe" data-ui="recipes.recipe" hidden>
+              <header class="recipe-hero" data-ui="recipes.header">
+                <img class="recipe-photo" id="rPhoto" alt="" hidden>
+                <div class="recipe-head">
+                  <div class="recipe-site" id="rSite"></div>
+                  <h2 id="rTitle"></h2>
+                  <div class="muted small" id="rAuthor"></div>
+                  <p class="muted" id="rDesc"></p>
+                  <div class="facts" id="rFacts" data-ui="recipes.facts"></div>
+                  <div class="recipe-actions" data-ui="recipes.actions">
+                    <a class="btn primary" id="rPdf" target="_blank" rel="noopener">
+                      <svg viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>PDF
+                    </a>
+                    <label class="photo-toggle"><input type="checkbox" class="switch" id="rPdfPhoto" checked><span>Photo in PDF</span></label>
+                    <button class="btn" id="rCopy" type="button">Copy text</button>
+                    <a class="btn ghost" id="rSource" target="_blank" rel="noopener noreferrer">Original ↗</a>
+                  </div>
+                </div>
+              </header>
+              <div class="recipe-cols">
+                <section class="ingredients" data-ui="recipes.ingredients">
+                  <h3>Ingredients</h3>
+                  <div id="rIngredients"></div>
+                </section>
+                <section class="steps" data-ui="recipes.instructions">
+                  <h3>Instructions</h3>
+                  <div id="rSteps"></div>
+                </section>
+              </div>
+              <section class="recipe-notes" id="rNotesWrap" data-ui="recipes.notes" hidden>
+                <h3>Notes</h3>
+                <div id="rNotes"></div>
+              </section>
+            </article>
           </div>
         </div>
       </section>

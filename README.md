@@ -117,6 +117,40 @@ Update: `cd /opt/wisp.boety.fun && sudo git pull && sudo npm ci --omit=dev && su
 Every element has a stable `data-ui` id (e.g. `browser.toolbar.address`), so each note
 points at the exact code to change.
 
+## Recipes
+
+Open any recipe by putting the site in front of its link:
+
+```
+wisp.boety.fun/https://floralapron.com/small-batch-cherry-jam/
+wisp.boety.fun/floralapron.com/small-batch-cherry-jam/
+```
+
+or paste the link under **Recipes**. The server fetches the page and extracts the recipe from
+schema.org JSON-LD, microdata, WP Recipe Maker / Tasty Recipes markup, or as a last resort
+"Ingredients"/"Instructions" headings. Tap ingredients and steps to tick them off.
+
+**PDF** (`/api/recipe/pdf?url=…`, `&photo=0` to leave out the photo): US Letter, Inter font
+(SIL OFL, `assets/fonts`), header with photo and timings, ingredients and numbered steps in two
+columns that flow independently across pages, notes, and source + page numbers in the footer.
+Recipes that nearly fit on one page are tightened slightly so they don't spill over.
+
+The fetcher only reaches public addresses (no loopback, private, link-local or metadata IPs,
+checked after DNS resolution and on every redirect), standard ports, 8 MB max, 15 s timeout.
+Some sites block automated readers; the reader says so when that happens.
+
+## Auto-deploy
+
+`deploy/setup.sh` installs `wisp-deploy.timer`, which checks GitHub `master` every 2 minutes.
+On a new commit it updates and re-runs setup in fast mode; if the gateway then fails its health
+check it rolls back to the previous commit and skips the failed commit until a newer one lands.
+
+- Status: `https://wisp.boety.fun/api/version` (live commit, last attempt, ok/rolled back)
+- Log on the VPS: `sudo tail -50 /var/log/wisp-deploy.log`
+- Turn off: `sudo systemctl disable --now wisp-deploy.timer`
+
+Anyone who can push to `master` can change what runs on the server.
+
 ## Accounts
 
 Every person has their own account; the app, the status API and the Wisp relay all

@@ -32,7 +32,9 @@ function handle(id, fn) {
   });
 }
 
-const enter = () => location.replace("/");
+// Same-site paths only ("/x", never "//host" or "/\host").
+const next = new URLSearchParams(location.search).get("next");
+const enter = () => location.replace(next && /^\/(?![\/\\])/.test(next) ? next : "/");
 
 handle("signin", async ({ username, password }) => {
   const r = await api("/api/auth/login", { username, password });

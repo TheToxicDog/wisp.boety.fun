@@ -5,6 +5,7 @@ import { initRuntime, initBrowser, setTransport } from "./browser.js";
 import { initGateway, showGateway } from "./gateway.js";
 import { initAnnotate } from "./annotate.js";
 import { initAccount, showAdmin } from "./accounts.js";
+import { initRecipes, showRecipes } from "./recipes.js";
 
 const app = $("#app");
 let me = null;
@@ -15,14 +16,14 @@ const TITLES = {
   settings: "Settings",
   account: "Account",
   admin: "People",
-  "module-2": "Module 2",
+  recipes: "Recipes",
   "module-3": "Module 3",
 };
 
 // ───────── Routing ─────────
 function route() {
-  const view = location.hash.replace("#/", "") || "browser";
-  let known = view in TITLES ? view : "browser";
+  const [view, query = ""] = location.hash.replace("#/", "").split("?");
+  let known = view && view in TITLES ? view : "browser";
   if (known === "admin" && me?.role !== "admin") known = "browser";
   const soon = known.startsWith("module-");
   $$(".view").forEach((v) => (v.hidden = true));
@@ -32,6 +33,7 @@ function route() {
   $$(".nav-item").forEach((a) => a.classList.toggle("active", a.dataset.view === known));
   showGateway(known === "gateway");
   showAdmin(known === "admin");
+  showRecipes(known === "recipes", new URLSearchParams(query));
   closeDrawer();
 }
 
@@ -135,6 +137,7 @@ initSidebar();
 initAnnotate();
 initGateway();
 initBrowser();
+initRecipes();
 
 me = await initAccount();
 addEventListener("hashchange", route);

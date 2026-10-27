@@ -1,0 +1,11 @@
+# /etc/systemd/system/wisp-deploy.timer
+[Unit]
+Description=Check GitHub for Wisp updates every 2 minutes
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=2min
+RandomizedDelaySec=15s
+
+[Install]
+WantedBy=timers.target

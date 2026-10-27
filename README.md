@@ -41,6 +41,16 @@ The relay always blocks private and loopback destinations (see `server.js`).
 
 ## Deploy (Ubuntu/Debian VPS behind Cloudflare)
 
+### Quick install (one line)
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/TheToxicDog/wisp.boety.fun/master/deploy/setup.sh | sudo bash
+```
+
+Installs Node, Nginx and the gateway, creates a self-signed origin certificate (use Cloudflare SSL
+mode **Full**), and locks web ports to Cloudflare. Re-run the same line to update.
+The manual steps below do the same thing by hand.
+
 ### 1. Origin (VPS)
 
 ```sh

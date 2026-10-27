@@ -1,0 +1,23 @@
+# /etc/systemd/system/wisp.service
+[Unit]
+Description=Wisp RBI gateway
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=wisp
+WorkingDirectory=/opt/wisp.boety.fun
+ExecStart=/usr/bin/node server.js
+Environment=NODE_ENV=production
+Environment=PORT=8080
+Environment=HOST=127.0.0.1
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

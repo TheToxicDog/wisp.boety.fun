@@ -1,0 +1,31 @@
+{
+  "name": "wisp-boety-fun",
+  "version": "0.1.0",
+  "description": "Private RBI gateway + Wisp stream multiplexer with a touch-first control UI",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TheToxicDog/wisp.boety.fun.git"
+  },
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/TheToxicDog/wisp.boety.fun/issues"
+  },
+  "homepage": "https://github.com/TheToxicDog/wisp.boety.fun#readme",
+  "dependencies": {
+    "@mercuryworkshop/bare-mux": "2.1.9",
+    "@mercuryworkshop/epoxy-transport": "2.1.29",
+    "@mercuryworkshop/scramjet": "1.1.0",
+    "@mercuryworkshop/wisp-js": "0.5.1",
+    "express": "^5.3.0"
+  },
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  }
+}

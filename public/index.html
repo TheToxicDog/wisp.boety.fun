@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0e1116">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Wisp">
+  <title>Wisp Gateway</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icons/icon-180.png">
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+  <div class="app" id="app" data-ui="app">
+
+    <!-- ───────────── Sidebar ───────────── -->
+    <aside class="sidebar" id="sidebar" data-ui="sidebar" aria-label="Main navigation">
+      <div class="sidebar-head" data-ui="sidebar.brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32"><path d="M6 20c4-10 10-12 20-12-6 3-8 7-8 12 0 3 2 5 5 5-8 2-15-1-17-5z" fill="currentColor"/></svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">Wisp</span>
+          <span class="brand-sub">Isolation Gateway</span>
+        </div>
+        <button class="icon-btn rail-toggle" id="railToggle" data-ui="sidebar.collapse" aria-label="Collapse sidebar">
+          <svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>
+        </button>
+      </div>
+
+      <nav class="nav" data-ui="sidebar.nav">
+        <div class="nav-label">Workspace</div>
+        <a href="#/browser" class="nav-item" data-view="browser" data-ui="sidebar.nav.browser">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></svg>
+          <span>Isolated Browser</span>
+        </a>
+        <a href="#/gateway" class="nav-item" data-view="gateway" data-ui="sidebar.nav.gateway">
+          <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/><circle cx="18" cy="17" r="2"/></svg>
+          <span>Gateway &amp; Streams</span>
+        </a>
+
+        <div class="nav-label">Modules</div>
+        <a href="#/module-2" class="nav-item is-soon" data-view="module-2" data-ui="sidebar.nav.module2">
+          <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 9v6M9 12h6"/></svg>
+          <span>Module 2</span><em class="tag">Soon</em>
+        </a>
+        <a href="#/module-3" class="nav-item is-soon" data-view="module-3" data-ui="sidebar.nav.module3">
+          <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 9v6M9 12h6"/></svg>
+          <span>Module 3</span><em class="tag">Soon</em>
+        </a>
+
+        <div class="nav-label">System</div>
+        <a href="#/settings" class="nav-item" data-view="settings" data-ui="sidebar.nav.settings">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>
+          <span>Settings</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-foot">
+        <button class="annotate-btn" id="annotateToggle" data-ui="sidebar.annotate" aria-pressed="false">
+          <svg viewBox="0 0 24 24"><path d="M4 20l4-1 11-11-3-3L5 16z"/><path d="M14 6l3 3"/></svg>
+          <span>Point &amp; Note</span>
+          <b class="count" id="noteCount" hidden>0</b>
+        </button>
+        <div class="conn-pill" id="connPill" data-ui="sidebar.status" data-state="pending">
+          <i class="dot"></i><span id="connText">Connecting…</span>
+        </div>
+      </div>
+    </aside>
+    <div class="scrim" id="scrim" hidden></div>
+
+    <!-- ───────────── Main ───────────── -->
+    <main class="main" id="main">
+      <header class="topbar" data-ui="topbar">
+        <button class="icon-btn menu-btn" id="menuBtn" data-ui="topbar.menu" aria-label="Open sidebar">
+          <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+        <h1 class="view-title" id="viewTitle" data-ui="topbar.title">Isolated Browser</h1>
+        <div class="topbar-actions" id="topbarActions"></div>
+      </header>
+
+      <!-- Browser view -->
+      <section class="view" id="view-browser" data-ui="browser">
+        <div class="tabstrip" id="tabstrip" data-ui="browser.tabs" role="tablist">
+          <div class="tabs" id="tabs"></div>
+          <button class="icon-btn" id="newTabBtn" data-ui="browser.tabs.new" aria-label="New tab">
+            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+        </div>
+
+        <div class="toolbar" data-ui="browser.toolbar">
+          <div class="btn-group">
+            <button class="icon-btn" id="backBtn" data-ui="browser.toolbar.back" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
+            <button class="icon-btn" id="fwdBtn" data-ui="browser.toolbar.forward" aria-label="Forward"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+            <button class="icon-btn" id="reloadBtn" data-ui="browser.toolbar.reload" aria-label="Reload"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg></button>
+          </div>
+          <form class="omnibox" id="omnibox" data-ui="browser.toolbar.address" autocomplete="off">
+            <svg class="lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+            <input id="address" type="text" inputmode="url" enterkeyhint="go" autocapitalize="off" spellcheck="false" placeholder="Search or enter address">
+            <button type="button" class="icon-btn sm" id="clearAddr" aria-label="Clear"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+          </form>
+          <div class="btn-group">
+            <button class="icon-btn" id="homeBtn" data-ui="browser.toolbar.home" aria-label="Home"><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"/></svg></button>
+            <button class="icon-btn" id="fullBtn" data-ui="browser.toolbar.fullscreen" aria-label="Focus mode"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+          </div>
+        </div>
+        <div class="progress" id="progress"><i></i></div>
+
+        <div class="viewport" id="viewport" data-ui="browser.viewport">
+          <!-- New tab page; frames are inserted beside it -->
+          <div class="ntp" id="ntp" data-ui="browser.newtab">
+            <div class="ntp-inner">
+              <div class="ntp-mark" aria-hidden="true">
+                <svg viewBox="0 0 32 32"><path d="M6 20c4-10 10-12 20-12-6 3-8 7-8 12 0 3 2 5 5 5-8 2-15-1-17-5z" fill="currentColor"/></svg>
+              </div>
+              <h2 data-ui="browser.newtab.heading">Browse in isolation</h2>
+              <p class="muted" data-ui="browser.newtab.subtitle">Pages run in a sandboxed frame. Every request is relayed through the Wisp multiplexer.</p>
+              <form class="ntp-search" id="ntpSearch" data-ui="browser.newtab.search" autocomplete="off">
+                <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+                <input id="ntpInput" type="text" inputmode="search" enterkeyhint="go" autocapitalize="off" spellcheck="false" placeholder="Search the web or type a URL">
+              </form>
+              <div class="quick-head">
+                <span class="section-label">Quick links</span>
+                <button class="text-btn" id="editLinks" data-ui="browser.newtab.editlinks">Edit</button>
+              </div>
+              <div class="quick-grid" id="quickGrid" data-ui="browser.newtab.quicklinks"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Gateway view -->
+      <section class="view" id="view-gateway" data-ui="gateway" hidden>
+        <div class="scroll">
+          <div class="grid">
+            <article class="card" data-ui="gateway.health">
+              <header><h3>Gateway health</h3><span class="badge" id="gwBadge">—</span></header>
+              <dl class="stats">
+                <div><dt>Uptime</dt><dd id="gwUptime">—</dd></div>
+                <div><dt>Live sessions</dt><dd id="gwSessions">—</dd></div>
+                <div><dt>Total sessions</dt><dd id="gwTotal">—</dd></div>
+                <div><dt>Memory</dt><dd id="gwMem">—</dd></div>
+              </dl>
+              <p class="muted small" id="gwMotd"></p>
+            </article>
+
+            <article class="card" data-ui="gateway.transport">
+              <header><h3>Transport</h3><span class="badge" id="swBadge">—</span></header>
+              <dl class="kv">
+                <div><dt>Isolation runtime</dt><dd>Scramjet (service worker)</dd></div>
+                <div><dt>Mux</dt><dd>bare-mux shared worker</dd></div>
+                <div><dt>Transport</dt><dd>epoxy-tls (WebAssembly)</dd></div>
+                <div><dt>Relay</dt><dd class="mono" id="wispUrlView">—</dd></div>
+                <div><dt>Stream limit</dt><dd id="gwLimit">—</dd></div>
+              </dl>
+            </article>
+
+            <article class="card" data-ui="gateway.latency">
+              <header><h3>Latency</h3><button class="btn sm" id="pingBtn">Run test</button></header>
+              <div class="spark" id="spark" aria-label="Latency samples"></div>
+              <p class="muted small" id="pingSummary">Measures round-trip time to the gateway API.</p>
+            </article>
+
+            <article class="card wide" data-ui="gateway.architecture">
+              <header><h3>Request path</h3></header>
+              <ol class="flow">
+                <li><b>Client container</b><span>Sandboxed iframe runs untrusted page code</span></li>
+                <li><b>Scramjet SW</b><span>Intercepts &amp; rewrites every fetch</span></li>
+                <li><b>bare-mux</b><span>Shared worker routes to the active transport</span></li>
+                <li><b>epoxy WASM</b><span>TLS terminated in-browser, end-to-end</span></li>
+                <li><b>Wisp over WSS</b><span>Binary frames, many streams on one socket</span></li>
+                <li><b>Nginx → Node</b><span>Upgrade proxied to the Wisp server</span></li>
+                <li><b>Origin</b><span>TCP stream opened to the destination</span></li>
+              </ol>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Settings view -->
+      <section class="view" id="view-settings" data-ui="settings" hidden>
+        <div class="scroll">
+          <div class="settings">
+            <div class="group" data-ui="settings.browsing">
+              <h3>Browsing</h3>
+              <label class="row">
+                <span><b>Search engine</b><small>Used when the address isn't a URL</small></span>
+                <select id="setSearch">
+                  <option value="https://duckduckgo.com/?q=%s">DuckDuckGo</option>
+                  <option value="https://www.google.com/search?q=%s">Google</option>
+                  <option value="https://www.bing.com/search?q=%s">Bing</option>
+                  <option value="https://search.brave.com/search?q=%s">Brave</option>
+                </select>
+              </label>
+              <label class="row">
+                <span><b>Restore tabs</b><small>Reopen your tabs next visit</small></span>
+                <input type="checkbox" class="switch" id="setRestore">
+              </label>
+            </div>
+
+            <div class="group" data-ui="settings.network">
+              <h3>Network</h3>
+              <label class="row stack">
+                <span><b>Wisp relay URL</b><small>Leave blank to use this server</small></span>
+                <div class="inline">
+                  <input type="url" id="setWisp" placeholder="wss://wisp.boety.fun/wisp/" autocapitalize="off" spellcheck="false">
+                  <button type="button" class="btn sm" id="applyWisp">Apply</button>
+                </div>
+              </label>
+            </div>
+
+            <div class="group" data-ui="settings.appearance">
+              <h3>Appearance</h3>
+              <div class="row">
+                <span><b>Theme</b></span>
+                <div class="seg" id="setTheme" role="radiogroup">
+                  <button data-v="auto">Auto</button><button data-v="light">Light</button><button data-v="dark">Dark</button>
+                </div>
+              </div>
+              <div class="row">
+                <span><b>Accent</b></span>
+                <div class="swatches" id="setAccent"></div>
+              </div>
+              <label class="row">
+                <span><b>Compact sidebar</b><small>Icons only on wide screens</small></span>
+                <input type="checkbox" class="switch" id="setRail">
+              </label>
+            </div>
+
+            <div class="group danger" data-ui="settings.data">
+              <h3>Data</h3>
+              <div class="row">
+                <span><b>Reset everything</b><small>Clears tabs, settings, notes and the service worker</small></span>
+                <button class="btn danger sm" id="resetAll">Reset</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Placeholder module view -->
+      <section class="view" id="view-soon" data-ui="module" hidden>
+        <div class="empty">
+          <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 9v6M9 12h6"/></svg>
+          <h2 id="soonTitle">Module</h2>
+          <p class="muted">This slot is reserved for the next architecture. Tell me what it should do and it'll live here.</p>
+        </div>
+      </section>
+    </main>
+
+    <!-- ───────────── Notes drawer ───────────── -->
+    <aside class="notes" id="notes" data-ui="notes" aria-label="Change notes">
+      <header>
+        <h3>Change notes</h3>
+        <button class="icon-btn" id="closeNotes" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      </header>
+      <p class="muted small hint">Tap any part of the interface to pin a note to it. When you're done, copy the list and paste it to Claude.</p>
+      <ol class="note-list" id="noteList"></ol>
+      <footer>
+        <button class="btn ghost sm" id="clearNotes">Clear all</button>
+        <button class="btn primary" id="copyNotes">Copy for Claude</button>
+      </footer>
+    </aside>
+  </div>
+
+  <!-- Annotation sheet -->
+  <div class="sheet" id="sheet" hidden>
+    <form class="sheet-card" id="sheetForm">
+      <div class="sheet-grab"></div>
+      <div class="sheet-target"><span class="muted small">Element</span><code id="sheetTarget"></code></div>
+      <textarea id="sheetText" rows="3" placeholder="What should change here? e.g. “make this bigger”, “rename to…”, “move to the right”"></textarea>
+      <div class="sheet-actions">
+        <button type="button" class="btn ghost" id="sheetCancel">Cancel</button>
+        <button type="button" class="btn ghost danger" id="sheetDelete" hidden>Delete</button>
+        <button type="submit" class="btn primary">Save note</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="annotate-banner" id="annotateBanner" hidden>
+    <span>Point &amp; Note is on — tap anything to describe a change</span>
+    <button class="btn sm" id="annotateDone">Done</button>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="/scram/scramjet.all.js"></script>
+  <script src="/baremux/index.js"></script>
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>

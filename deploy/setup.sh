@@ -104,5 +104,5 @@ echo "auto-deploy: on (checks GitHub every 2 minutes)"
 IP=$(curl -4 -fsS https://ifconfig.me 2>/dev/null || hostname -I | awk '{print $1}')
 printf '\n\033[1;32mDone.\033[0m Server IP for the Cloudflare DNS record: \033[1m%s\033[0m\n' "$IP"
 if [ -s /var/lib/wisp/setup-code ]; then
-  printf '\nOpen https://%s and create your master account with setup code: \033[1;33m%s\033[0m\n' "$DOMAIN" "$(cat /var/lib/wisp/setup-code)"
+  printf '\nOpen https://%s and create your master account with your access code (or this one: \033[1;33m%s\033[0m)\n' "$DOMAIN" "$(cat /var/lib/wisp/setup-code)"
 fi

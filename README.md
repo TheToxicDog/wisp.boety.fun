@@ -156,9 +156,10 @@ Anyone who can push to `master` can change what runs on the server.
 Every person has their own account; the app, the status API and the Wisp relay all
 require an approved, signed-in account.
 
-- **Master account**: on first start the server writes a one-time setup code to
-  `/var/lib/wisp/setup-code` (the setup script prints it). Open the site and use it to
-  create the master account; the code is deleted afterwards.
+- **Master account**: open the site and enter the one-time access code (given to the
+  owner privately; only its scrypt hash is in this repo), then choose your own username
+  and password. The per-server code in `/var/lib/wisp/setup-code` (printed by the setup
+  script) also works. Both stop working once the master account exists.
 - **Request access**: anyone can sign up, but the account stays *pending* and can't
   sign in until the master approves it under **People**.
 - **People** (master only): approve or reject requests, add people (blank password =

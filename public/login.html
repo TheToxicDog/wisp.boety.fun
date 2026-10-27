@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#0e1116">
+  <meta name="theme-color" content="#070a10">
+  <meta name="color-scheme" content="dark">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -12,75 +13,205 @@
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/icons/icon-180.png">
-  <link rel="stylesheet" href="/css/app.css">
+  <link rel="stylesheet" href="/css/login.css">
 </head>
-<body class="auth-page">
-  <main class="auth" data-ui="login">
-    <div class="auth-card" data-ui="login.card">
-      <div class="auth-brand" data-ui="login.brand">
-        <div class="brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 32 32"><path d="M6 20c4-10 10-12 20-12-6 3-8 7-8 12 0 3 2 5 5 5-8 2-15-1-17-5z" fill="currentColor"/></svg>
+<body>
+  <div class="shell" data-ui="login">
+
+    <!-- ───────── Brand panel ───────── -->
+    <aside class="brand" data-ui="login.brand">
+      <div class="grid-bg" aria-hidden="true"></div>
+      <div class="glow" aria-hidden="true"></div>
+      <div class="brand-top">
+        <span class="logo" aria-hidden="true">
+          <svg viewBox="0 0 32 32"><path d="M6 20c4-10 10-12 20-12-6 3-8 7-8 12 0 3 2 5 5 5-8 2-15-1-17-5z"/></svg>
+        </span>
+        <span class="wordmark">Wisp<span>Gateway</span></span>
+      </div>
+
+      <div class="brand-body">
+        <p class="eyebrow">Remote browser isolation</p>
+        <h1>Browse anything.<br><span class="hl">Expose nothing.</span></h1>
+        <p class="lede">Untrusted pages run in a sandbox, encrypted end to end from your device and relayed through your private gateway.</p>
+        <ul class="features">
+          <li>
+            <span class="fi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18"/></svg></span>
+            <div><b>Isolated sessions</b><span>Each person's logins and history stay on their own device.</span></div>
+          </li>
+          <li>
+            <span class="fi"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span>
+            <div><b>End-to-end TLS</b><span>Encryption happens in your browser, so the relay only sees ciphertext.</span></div>
+          </li>
+          <li>
+            <span class="fi"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4.5 4.2-7 8-7s7 2.5 8 7"/><path d="M17 4.5l1.5 1.5 3-3"/></svg></span>
+            <div><b>Approved members only</b><span>Every account is reviewed before it gets access.</span></div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="brand-foot">
+        <span class="status" id="status" data-state="checking"><i></i><span id="statusText">Checking gateway…</span></span>
+        <span class="host">wisp.boety.fun</span>
+      </div>
+    </aside>
+
+    <!-- ───────── Form panel ───────── -->
+    <main class="panel">
+      <div class="card" data-ui="login.card">
+        <div class="mobile-brand" aria-hidden="true">
+          <span class="logo"><svg viewBox="0 0 32 32"><path d="M6 20c4-10 10-12 20-12-6 3-8 7-8 12 0 3 2 5 5 5-8 2-15-1-17-5z"/></svg></span>
+          <span class="wordmark">Wisp<span>Gateway</span></span>
         </div>
-        <div>
-          <div class="brand-name">Wisp</div>
-          <div class="brand-sub">Isolation Gateway</div>
-        </div>
+
+        <!-- Sign in / Request access -->
+        <section class="view" id="v-auth" hidden>
+          <header class="head">
+            <h2 id="authTitle">Welcome back</h2>
+            <p id="authSub">Sign in to continue to your workspace.</p>
+          </header>
+          <div class="tabs" role="tablist" data-ui="login.tabs">
+            <button role="tab" data-tab="signin" aria-selected="true">Sign in</button>
+            <button role="tab" data-tab="signup" aria-selected="false">Request access</button>
+            <span class="tab-ink" aria-hidden="true"></span>
+          </div>
+
+          <form id="signin" data-ui="login.signin" novalidate>
+            <div class="field">
+              <label for="si-user">Username</label>
+              <div class="control"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4.5 4.2-7 8-7s7 2.5 8 7"/></svg>
+                <input id="si-user" name="username" autocomplete="username" autocapitalize="off" spellcheck="false" required></div>
+            </div>
+            <div class="field">
+              <label for="si-pass">Password</label>
+              <div class="control"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+                <input id="si-pass" name="password" type="password" autocomplete="current-password" required>
+                <button type="button" class="reveal" aria-label="Show password"></button></div>
+            </div>
+            <div class="alert" role="alert" hidden></div>
+            <button class="primary" type="submit"><span>Sign in</span></button>
+          </form>
+
+          <form id="signup" data-ui="login.signup" novalidate hidden>
+            <div class="field">
+              <label for="su-user">Choose a username</label>
+              <div class="control"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4.5 4.2-7 8-7s7 2.5 8 7"/></svg>
+                <input id="su-user" name="username" autocomplete="username" autocapitalize="off" spellcheck="false" minlength="3" maxlength="32" required></div>
+              <p class="hint">3–32 characters: letters, numbers, dot, dash or underscore.</p>
+            </div>
+            <div class="field">
+              <label for="su-pass">Password</label>
+              <div class="control"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+                <input id="su-pass" name="password" type="password" autocomplete="new-password" minlength="8" required data-strength>
+                <button type="button" class="reveal" aria-label="Show password"></button></div>
+              <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><span></span></div>
+            </div>
+            <div class="field">
+              <label for="su-confirm">Confirm password</label>
+              <div class="control"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg>
+                <input id="su-confirm" name="confirm" type="password" autocomplete="new-password" required></div>
+            </div>
+            <div class="field">
+              <label for="su-note">Who are you? <em>Optional</em></label>
+              <div class="control"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4z"/></svg>
+                <input id="su-note" name="note" maxlength="200" placeholder="Helps the owner recognise you"></div>
+            </div>
+            <div class="alert" role="alert" hidden></div>
+            <button class="primary" type="submit"><span>Request access</span></button>
+            <p class="fine">The owner reviews every request. You can sign in once you're approved.</p>
+          </form>
+        </section>
+
+        <!-- First-time setup: step 1 access code, step 2 create the master login -->
+        <section class="view" id="v-setup" data-ui="login.setup" hidden>
+          <ol class="stepper" aria-label="Setup progress">
+            <li class="on" id="st1"><span>1</span>Access code</li>
+            <li id="st2"><span>2</span>Your login</li>
+          </ol>
+
+          <form id="setup-code" novalidate>
+            <header class="head">
+              <h2>Set up your gateway</h2>
+              <p>Enter the one-time access code you were given to claim the master account.</p>
+            </header>
+            <div class="field">
+              <label for="sc-code">Access code</label>
+              <div class="control"><svg viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M16 7l3 3"/></svg>
+                <input id="sc-code" name="code" class="mono" autocapitalize="off" autocomplete="one-time-code" spellcheck="false" placeholder="word-word-word-0000" required></div>
+            </div>
+            <div class="alert" role="alert" hidden></div>
+            <button class="primary" type="submit"><span>Continue</span></button>
+          </form>
+
+          <form id="setup-account" novalidate hidden>
+            <header class="head">
+              <h2>Create your login</h2>
+              <p>This becomes the master account. You'll use it to approve and manage everyone else.</p>
+            </header>
+            <div class="field">
+              <label for="sa-user">Username</label>
+              <div class="control"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4.5 4.2-7 8-7s7 2.5 8 7"/></svg>
+                <input id="sa-user" name="username" autocomplete="username" autocapitalize="off" spellcheck="false" minlength="3" maxlength="32" required></div>
+            </div>
+            <div class="field">
+              <label for="sa-pass">Password</label>
+              <div class="control"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+                <input id="sa-pass" name="password" type="password" autocomplete="new-password" minlength="8" required data-strength>
+                <button type="button" class="reveal" aria-label="Show password"></button></div>
+              <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><span></span></div>
+            </div>
+            <div class="field">
+              <label for="sa-confirm">Confirm password</label>
+              <div class="control"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg>
+                <input id="sa-confirm" name="confirm" type="password" autocomplete="new-password" required></div>
+            </div>
+            <div class="alert" role="alert" hidden></div>
+            <button class="primary" type="submit"><span>Create master account</span></button>
+            <button class="link" type="button" id="setupBack">← Use a different code</button>
+          </form>
+        </section>
+
+        <!-- Forced password change -->
+        <section class="view" id="v-change" data-ui="login.change" hidden>
+          <form id="change" novalidate>
+            <header class="head">
+              <h2>Choose a new password</h2>
+              <p>Your password was set by the owner. Pick your own to continue.</p>
+            </header>
+            <div class="field">
+              <label for="ch-cur">Temporary password</label>
+              <div class="control"><svg viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M16 7l3 3"/></svg>
+                <input id="ch-cur" name="current" type="password" autocomplete="current-password" required>
+                <button type="button" class="reveal" aria-label="Show password"></button></div>
+            </div>
+            <div class="field">
+              <label for="ch-next">New password</label>
+              <div class="control"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+                <input id="ch-next" name="next" type="password" autocomplete="new-password" minlength="8" required data-strength>
+                <button type="button" class="reveal" aria-label="Show password"></button></div>
+              <div class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><span></span></div>
+            </div>
+            <div class="field">
+              <label for="ch-confirm">Confirm new password</label>
+              <div class="control"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg>
+                <input id="ch-confirm" name="confirm" type="password" autocomplete="new-password" required></div>
+            </div>
+            <div class="alert" role="alert" hidden></div>
+            <button class="primary" type="submit"><span>Save and continue</span></button>
+          </form>
+        </section>
+
+        <!-- Waiting for approval -->
+        <section class="view done" id="v-pending" data-ui="login.pending" hidden>
+          <div class="badge-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+          <h2>Request sent</h2>
+          <p>Your account is waiting for approval. You'll be able to sign in as soon as the owner approves it.</p>
+          <button class="secondary" id="backToSignin" type="button">Back to sign in</button>
+        </section>
+
+        <p class="legal">Protected by end-to-end TLS · Access is monitored</p>
       </div>
-
-      <!-- Tabs for normal visitors -->
-      <div class="seg auth-tabs" id="tabs" data-ui="login.tabs" role="tablist" hidden>
-        <button data-tab="signin" class="on">Sign in</button>
-        <button data-tab="signup">Request access</button>
-      </div>
-
-      <form class="auth-form" id="signin" data-ui="login.signin" hidden>
-        <label>Username<input name="username" autocomplete="username" autocapitalize="off" spellcheck="false" required></label>
-        <label>Password<input name="password" type="password" autocomplete="current-password" required></label>
-        <p class="auth-error" role="alert"></p>
-        <button class="btn primary" type="submit">Sign in</button>
-      </form>
-
-      <form class="auth-form" id="signup" data-ui="login.signup" hidden>
-        <label>Username<input name="username" autocomplete="username" autocapitalize="off" spellcheck="false" minlength="3" maxlength="32" required></label>
-        <label>Password<input name="password" type="password" autocomplete="new-password" minlength="8" required></label>
-        <label>Confirm password<input name="confirm" type="password" autocomplete="new-password" minlength="8" required></label>
-        <label>Who are you? <small class="muted">(helps the owner approve you)</small><input name="note" maxlength="200" placeholder="e.g. Sam from school"></label>
-        <p class="auth-error" role="alert"></p>
-        <button class="btn primary" type="submit">Request access</button>
-      </form>
-
-      <!-- Shown once, before any master account exists -->
-      <form class="auth-form" id="setup" data-ui="login.setup" hidden>
-        <h2>Create the master account</h2>
-        <p class="muted small">Get the setup code on your VPS with:<br><code class="cmd">sudo cat /var/lib/wisp/setup-code</code></p>
-        <label>Setup code<input name="code" autocapitalize="off" spellcheck="false" autocomplete="one-time-code" required></label>
-        <label>Username<input name="username" autocomplete="username" autocapitalize="off" spellcheck="false" minlength="3" maxlength="32" required></label>
-        <label>Password<input name="password" type="password" autocomplete="new-password" minlength="8" required></label>
-        <label>Confirm password<input name="confirm" type="password" autocomplete="new-password" minlength="8" required></label>
-        <p class="auth-error" role="alert"></p>
-        <button class="btn primary" type="submit">Create master account</button>
-      </form>
-
-      <!-- Required after a password reset -->
-      <form class="auth-form" id="change" data-ui="login.change" hidden>
-        <h2>Choose a new password</h2>
-        <p class="muted small">Your password was set by the owner. Pick your own to continue.</p>
-        <label>Temporary password<input name="current" type="password" autocomplete="current-password" required></label>
-        <label>New password<input name="next" type="password" autocomplete="new-password" minlength="8" required></label>
-        <label>Confirm new password<input name="confirm" type="password" autocomplete="new-password" minlength="8" required></label>
-        <p class="auth-error" role="alert"></p>
-        <button class="btn primary" type="submit">Save and continue</button>
-      </form>
-
-      <div class="auth-msg" id="pending" data-ui="login.pending" hidden>
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-        <h2>Waiting for approval</h2>
-        <p class="muted">Your request was sent. You'll be able to sign in once the owner approves it.</p>
-        <button class="btn" id="backToSignin">Back to sign in</button>
-      </div>
-    </div>
-  </main>
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </main>
+  </div>
   <script type="module" src="/js/login.js"></script>
 </body>
 </html>

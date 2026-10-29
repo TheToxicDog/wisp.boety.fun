@@ -122,9 +122,14 @@ function initSettings() {
 function setConn(state, detail) {
   const pill = $("#connPill");
   pill.dataset.state = state;
-  $("#connText").textContent = state === "ok" ? "Relay connected" : state === "bad" ? "Relay offline" : "Connecting…";
-  if (detail) pill.title = detail;
+  $("#connText").textContent = state === "ok" ? "Relay connected" : state === "bad" ? "Relay offline · tap for details" : "Connecting…";
+  pill.title = detail || "";
 }
+// No hover on iPad: tapping the pill shows why it's offline.
+$("#connPill").addEventListener("click", () => {
+  const detail = $("#connPill").title;
+  if (detail) toast(detail, 8000);
+});
 
 // ───────── Boot ─────────
 const repaint = initSettings();

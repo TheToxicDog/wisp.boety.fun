@@ -99,6 +99,7 @@ svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width:
 .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--warn); flex: none; }
 .conn-pill[data-state="ok"] .dot { background: var(--good); box-shadow: 0 0 0 4px color-mix(in srgb, var(--good) 20%, transparent); }
 .conn-pill[data-state="bad"] .dot { background: var(--bad); }
+.conn-pill[title]:not([title=""]) { cursor: pointer; }
 
 /* Rail (collapsed) */
 .app.rail .brand-text, .app.rail .nav-label, .app.rail .nav-item span, .app.rail .tag,
@@ -332,6 +333,7 @@ body.annotating .main input, body.annotating .main select { pointer-events: none
   transition: transform .25s ease, opacity .25s; pointer-events: none; box-shadow: var(--shadow); opacity: 0;
 }
 .toast.show { transform: translate(-50%, 0); opacity: 1; }
+.toast { max-width: min(560px, calc(100vw - 32px)); text-align: center; border-radius: 18px; }
 
 .scrim { position: fixed; inset: 0; z-index: 29; background: rgb(0 0 0 / .35); }
 

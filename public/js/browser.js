@@ -52,8 +52,9 @@ export function initRuntime(onStatus) {
   return ready;
 }
 
+// Epoxy, wrapped so a dropped relay connection is redialed (transport.mjs).
 export async function setTransport() {
-  await connection.setTransport("/epoxy/index.mjs", [{ wisp: wispUrl() }]);
+  await connection.setTransport("/js/transport.mjs", [{ wisp: wispUrl() }]);
 }
 
 // ───────── URL handling ─────────

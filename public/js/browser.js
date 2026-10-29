@@ -53,8 +53,9 @@ export function initRuntime(onStatus) {
 }
 
 // Epoxy, wrapped so a dropped relay connection is redialed (transport.mjs).
+// Carries this file's ?v= stamp: the worker has no import map (see lib/pages.js).
 export async function setTransport() {
-  await connection.setTransport("/js/transport.mjs", [{ wisp: wispUrl() }]);
+  await connection.setTransport(`/js/transport.mjs${new URL(import.meta.url).search}`, [{ wisp: wispUrl() }]);
 }
 
 // ───────── URL handling ─────────

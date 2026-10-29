@@ -12,6 +12,7 @@ import { authRouter, requireUser, requirePage, authorizeUpgrade, ensureSetupCode
 import { getRecipe, fetchPage } from "./lib/recipe.js";
 import { renderRecipePdf, pdfFilename } from "./lib/recipe-pdf.js";
 import { chatRouter, chatUpgrade } from "./lib/chat.js";
+import { loadPages } from "./lib/pages.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT || 8080);
@@ -131,14 +132,15 @@ app.get(/^\/https?:\//i, requirePage, (req, res) => {
 });
 
 const noCache = (res) => res.setHeader("Cache-Control", "no-cache");
-const appShell = (_req, res) => { noCache(res); res.sendFile(join(__dirname, "views", "app.html")); };
+const pages = loadPages(__dirname);
+const appShell = (_req, res) => { noCache(res); res.type("html").send(pages.app); };
 
 app.get("/login", (req, res) => {
   const auth = userFromRequest(req);
   const next = String(req.query.next || "");
   if (auth && !auth.user.mustChangePassword) return res.redirect(302, /^\/(?![\/\\])/.test(next) ? next : "/");
   noCache(res);
-  res.sendFile(join(__dirname, "public", "login.html"));
+  res.type("html").send(pages.login);
 });
 app.get(["/", "/index.html"], requirePage, appShell);
 

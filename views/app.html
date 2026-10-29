@@ -13,6 +13,7 @@
   <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/icons/icon-180.png">
   <link rel="stylesheet" href="/css/app.css">
+  <link rel="stylesheet" href="/css/photo.css">
 </head>
 <body>
   <div class="app" id="app" data-ui="app">
@@ -47,6 +48,10 @@
         <a href="#/recipes" class="nav-item" data-view="recipes" data-ui="sidebar.nav.recipes">
           <svg viewBox="0 0 24 24"><path d="M6 3h11a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6z"/><path d="M6 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2"/><path d="M10 8h6M10 12h6M10 16h3"/></svg>
           <span>Recipes</span>
+        </a>
+        <a href="#/photo" class="nav-item" data-view="photo" data-ui="sidebar.nav.photo">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3l3.5 6.5M21 12h-7.5M16.5 19.8L12.8 13M7.5 19.8L11.2 13M3 12h7.5M7.5 4.2l3.7 6.5"/></svg>
+          <span>Photos</span>
         </a>
         <a href="#/chat" class="nav-item" data-view="chat" data-ui="sidebar.nav.chat">
           <svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></svg>
@@ -323,6 +328,11 @@
             </article>
           </div>
         </div>
+      </section>
+
+      <!-- Photos view (Rust/WASM raw editor) -->
+      <section class="view" id="view-photo" data-ui="photo" hidden>
+        <div class="ph" id="photoRoot" data-ui="photo.app"></div>
       </section>
 
       <!-- Account view -->

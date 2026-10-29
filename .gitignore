@@ -8,3 +8,4 @@ public/baremux/
 public/epoxy/
 # Accounts and sessions (DATA_DIR default for local runs)
 data/
+photo/target/

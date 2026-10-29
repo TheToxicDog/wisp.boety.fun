@@ -204,3 +204,33 @@ sudo systemctl stop wisp && sudo -u wisp DATA_DIR=/var/lib/wisp node /opt/wisp.b
 
 `@mercuryworkshop/epoxy-transport` is pinned to `2.1.29`: the 3.x line expects a newer
 bare-mux header format and fails with `headers is not iterable` against `bare-mux@2.1.9`.
+
+## Photos module (Rust + WebAssembly raw editor)
+
+`#/photo` is a Lightroom-style catalog and raw developer that runs entirely in the browser.
+The develop engine lives in `photo/` (Rust) and is compiled to `public/photo/develop.wasm`,
+which is committed so deploys need no Rust toolchain. Rebuild after changing `photo/`:
+
+```sh
+rustup target add wasm32-unknown-unknown   # once
+scripts/build-photo.sh
+cd photo && cargo test --release            # engine unit tests
+```
+
+- **Library**: import (file picker or drag & drop, duplicate detection), grid + filmstrip, star
+  ratings, pick/reject flags, colour labels, keywords, title/caption, EXIF metadata, filters and
+  sorting, collections, virtual copies, Quick Develop, sync / copy / paste settings.
+- **Develop**: raw decoding (CR2, NEF, ARW, DNG, RAF, ORF, RW2, PEF… via `rawloader`, Malvar-He-Cutler
+  demosaic) plus JPEG/PNG (and anything the browser decodes); Kelvin white balance with presets,
+  auto and picker; profiles; exposure, contrast, highlights, shadows, whites, blacks (local tone
+  mapping); texture, clarity, dehaze, vibrance, saturation; parametric + point tone curves (RGB/R/G/B);
+  HSL colour mixer and B&W mix with targeted adjustment; colour grading wheels; sharpening and noise
+  reduction; lens distortion, vignetting, chromatic aberration, defringe; perspective transform;
+  post-crop vignette and grain; calibration; crop & straighten; heal/clone spots; linear, radial,
+  brush, luminance- and colour-range masks with local adjustments; histogram with clipping
+  warnings; before/after; history, snapshots, presets.
+- **Export**: full-resolution tiled render to JPEG/PNG/TIFF (encoded in WASM) or WebP/AVIF, resizing,
+  output sharpening, watermark, EXIF passthrough, batch export as ZIP or to the share sheet.
+
+Originals and edits are stored in the browser's IndexedDB; edits are non-destructive.
+Press `?` in the module for keyboard shortcuts.

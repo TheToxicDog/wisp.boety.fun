@@ -48,9 +48,9 @@
           <svg viewBox="0 0 24 24"><path d="M6 3h11a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6z"/><path d="M6 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2"/><path d="M10 8h6M10 12h6M10 16h3"/></svg>
           <span>Recipes</span>
         </a>
-        <a href="#/module-3" class="nav-item is-soon" data-view="module-3" data-ui="sidebar.nav.module3">
-          <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 9v6M9 12h6"/></svg>
-          <span>Module 3</span><em class="tag">Soon</em>
+        <a href="#/chat" class="nav-item" data-view="chat" data-ui="sidebar.nav.chat">
+          <svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></svg>
+          <span>Chat</span><em class="tag alert" id="chatTag" hidden>0</em>
         </a>
 
         <div class="nav-label">System</div>
@@ -374,12 +374,56 @@
         </div>
       </section>
 
-      <!-- Placeholder module view -->
-      <section class="view" id="view-soon" data-ui="module" hidden>
-        <div class="empty">
-          <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 9v6M9 12h6"/></svg>
-          <h2 id="soonTitle">Module</h2>
-          <p class="muted">This slot is reserved for the next architecture. Tell me what it should do and it'll live here.</p>
+      <!-- Chat view -->
+      <section class="view" id="view-chat" data-ui="chat" hidden>
+        <div class="chat" id="chat">
+          <div class="call" id="call" data-ui="chat.call" hidden>
+            <div class="call-grid" id="callGrid"></div>
+            <div class="call-bar" data-ui="chat.call.controls">
+              <button class="call-ctl" id="micBtn" aria-pressed="true" aria-label="Microphone">
+                <svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/><path class="slash" d="M4 4l16 16"/></svg>
+              </button>
+              <button class="call-ctl" id="camBtn" aria-pressed="true" aria-label="Camera">
+                <svg viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10.5l5-3v9l-5-3"/><path class="slash" d="M4 4l16 16"/></svg>
+              </button>
+              <button class="call-ctl" id="flipBtn" aria-label="Switch camera" hidden>
+                <svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><path d="M9.5 13.5a2.5 2.5 0 0 0 4.6 1.3M14.5 12.5a2.5 2.5 0 0 0-4.6-1.3"/><path d="M14.5 10v2.5H12M9.5 16v-2.5H12"/></svg>
+              </button>
+              <button class="call-ctl leave" id="leaveBtn" aria-label="Leave call">
+                <svg viewBox="0 0 24 24"><path d="M3 14.5c5-5 13-5 18 0l-2.5 2.5-3-1.5v-2.5a10 10 0 0 0-7 0v2.5l-3 1.5z"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="chat-main">
+            <div class="chat-head" data-ui="chat.header">
+              <div class="chat-online" id="chatOnline" data-ui="chat.online"></div>
+              <button class="btn sm primary" id="callBtn" data-ui="chat.call.start">
+                <svg viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10.5l5-3v9l-5-3"/></svg>
+                <span id="callBtnText">Video call</span>
+              </button>
+            </div>
+            <div class="call-banner" id="callBanner" data-ui="chat.call.banner" hidden></div>
+
+            <div class="chat-log" id="chatLog" data-ui="chat.messages">
+              <div class="chat-status muted" id="chatStatus">Connecting…</div>
+            </div>
+            <div class="chat-typing muted small" id="chatTyping"></div>
+
+            <form class="composer" id="chatForm" data-ui="chat.composer" autocomplete="off">
+              <div class="attach-tray" id="attachTray" data-ui="chat.composer.photos" hidden></div>
+              <div class="composer-row">
+                <label class="icon-btn" data-ui="chat.composer.addphoto" aria-label="Add photos">
+                  <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="9" cy="10" r="1.8"/><path d="M21 15.5l-5-5-8.5 8.5"/></svg>
+                  <input type="file" id="chatFile" accept="image/*" multiple hidden>
+                </label>
+                <textarea id="chatText" rows="1" maxlength="2000" enterkeyhint="send" placeholder="Message everyone"></textarea>
+                <button class="icon-btn send" type="submit" id="chatSend" data-ui="chat.composer.send" aria-label="Send">
+                  <svg viewBox="0 0 24 24"><path d="M4 12l16-8-6 16-2.5-6.5z"/><path d="M11.5 13.5L20 4"/></svg>
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       </section>
     </main>
@@ -424,6 +468,15 @@
         <button class="btn ghost" id="secretClose">Done</button>
         <button class="btn primary" id="secretCopy">Copy</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Chat photo viewer -->
+  <div class="lightbox" id="lightbox" hidden>
+    <img id="lightboxImg" alt="">
+    <div class="lightbox-bar">
+      <a class="btn sm" id="lightboxSave" download>Save</a>
+      <button class="btn sm" id="lightboxClose">Close</button>
     </div>
   </div>
 

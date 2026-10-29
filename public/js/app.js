@@ -6,6 +6,7 @@ import { initGateway, showGateway } from "./gateway.js";
 import { initAnnotate } from "./annotate.js";
 import { initAccount, showAdmin } from "./accounts.js";
 import { initRecipes, showRecipes } from "./recipes.js";
+import { initChat, showChat } from "./chat.js";
 
 const app = $("#app");
 let me = null;
@@ -17,7 +18,7 @@ const TITLES = {
   account: "Account",
   admin: "People",
   recipes: "Recipes",
-  "module-3": "Module 3",
+  chat: "Chat",
 };
 
 // ───────── Routing ─────────
@@ -25,15 +26,14 @@ function route() {
   const [view, query = ""] = location.hash.replace("#/", "").split("?");
   let known = view && view in TITLES ? view : "browser";
   if (known === "admin" && me?.role !== "admin") known = "browser";
-  const soon = known.startsWith("module-");
   $$(".view").forEach((v) => (v.hidden = true));
-  $(soon ? "#view-soon" : `#view-${known}`).hidden = false;
-  if (soon) $("#soonTitle").textContent = TITLES[known];
+  $(`#view-${known}`).hidden = false;
   $("#viewTitle").textContent = TITLES[known];
   $$(".nav-item").forEach((a) => a.classList.toggle("active", a.dataset.view === known));
   showGateway(known === "gateway");
   showAdmin(known === "admin");
   showRecipes(known === "recipes", new URLSearchParams(query));
+  showChat(known === "chat");
   closeDrawer();
 }
 
@@ -140,6 +140,7 @@ initBrowser();
 initRecipes();
 
 me = await initAccount();
+initChat();
 addEventListener("hashchange", route);
 route();
 

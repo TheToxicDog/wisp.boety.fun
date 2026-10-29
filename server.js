@@ -11,11 +11,13 @@ import { DATA_DIR } from "./lib/store.js";
 import { authRouter, requireUser, requirePage, authorizeUpgrade, ensureSetupCode, userFromRequest, flush } from "./lib/auth.js";
 import { getRecipe, fetchPage } from "./lib/recipe.js";
 import { renderRecipePdf, pdfFilename } from "./lib/recipe-pdf.js";
+import { chatRouter, chatUpgrade } from "./lib/chat.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT || 8080);
 const HOST = process.env.HOST || "127.0.0.1";
 const WISP_PATH = "/wisp/";
+const CHAT_PATH = "/chat/";
 
 const missing = verifyAssets();
 if (missing.length) {
@@ -41,6 +43,7 @@ app.set("trust proxy", "loopback"); // Nginx on localhost sets X-Forwarded-Proto
 ensureSetupCode();
 
 app.use("/api", authRouter());
+app.use("/api/chat", chatRouter());
 
 // Public: which commit is live and how the last auto-deploy went.
 app.get("/api/version", (_req, res) => {
@@ -150,6 +153,7 @@ app.get("/{*path}", requirePage, (req, res) => {
 const server = createServer(app);
 
 server.on("upgrade", (req, socket, head) => {
+  if (req.url.startsWith(CHAT_PATH)) return chatUpgrade(req, socket, head);
   if (!req.url.startsWith(WISP_PATH)) return socket.end();
   if (!authorizeUpgrade(req, socket)) {
     socket.end("HTTP/1.1 401 Unauthorized\r\nConnection: close\r\nContent-Length: 0\r\n\r\n");
@@ -167,7 +171,7 @@ server.listen(PORT, HOST, () => {
 
 for (const sig of ["SIGINT", "SIGTERM"]) {
   process.on(sig, () => {
-    flush(); // persist pending user/session writes before exit
+    flush(); // persist pending user/session/chat writes before exit
     process.exit(0);
   });
 }

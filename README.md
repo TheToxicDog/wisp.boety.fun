@@ -73,7 +73,7 @@ sudo systemctl enable --now wisp
    `/etc/ssl/cloudflare/wisp.boety.fun.pem` and the key as `/etc/ssl/cloudflare/wisp.boety.fun.key`
    (`chmod 600` the key).
 4. **Network**: **WebSockets** on.
-5. **Caching → Cache Rules**: bypass cache when the URI path starts with `/wisp/` or `/api/`.
+5. **Caching → Cache Rules**: bypass cache when the URI path starts with `/wisp/`, `/chat/` or `/api/`.
 6. **Speed → Optimization**: turn **Rocket Loader** off (it rewrites scripts and breaks the runtime).
 7. Optional, stronger origin shielding: **SSL/TLS → Origin Server → Authenticated Origin Pulls** on,
    then uncomment the two `ssl_*client*` lines in `deploy/nginx.conf`.
@@ -92,7 +92,7 @@ sudo scripts/cloudflare-sync.sh      # real-IP config + 80/443 open to Cloudflar
 echo '17 4 * * 1 root /opt/wisp.boety.fun/scripts/cloudflare-sync.sh' | sudo tee /etc/cron.d/cloudflare-sync
 ```
 
-Nginx serves `public/` directly and proxies only `/wisp/` (WebSocket) and `/api/` to Node.
+Nginx serves `public/` directly and proxies only `/wisp/` and `/chat/` (WebSockets) and `/api/` to Node.
 Check **Gateway & Streams → Edge & ingress** in the UI: it reads **Proxied** with your
 Cloudflare edge location when traffic is flowing through Cloudflare.
 
@@ -138,6 +138,28 @@ Recipes that nearly fit on one page are tightened slightly so they don't spill o
 The fetcher only reaches public addresses (no loopback, private, link-local or metadata IPs,
 checked after DNS resolution and on every redirect), standard ports, 8 MB max, 15 s timeout.
 Some sites block automated readers; the reader says so when that happens.
+
+## Chat
+
+**Chat** in the sidebar is a live room for everyone with an approved account.
+
+- **Messages** appear instantly for everyone online (WebSocket at `/chat/`). The last 1,000
+  are kept in `DATA_DIR/chat.json`. Links are clickable. Tap one of your messages to delete it;
+  the master account can delete any message.
+- **Photos**: tap the photo button, paste, or drag photos in (up to 6 per message, 10 MB each).
+  They're resized to 1920 px and re-encoded as JPEG in the browser, which also strips location
+  data; GIFs are sent as-is. Files live in `DATA_DIR/chat-photos` and are only served to
+  signed-in people.
+- **Video call**: **Video call** starts one for the room; others see a **Join** banner. Up to 8
+  people, with mic, camera and front/back camera controls. Video goes directly between browsers
+  (WebRTC); the server only passes along the connection handshakes. The browser asks for
+  camera and microphone permission the first time.
+- The sidebar shows unread messages, or **Live** while you're in a call.
+
+Calls use public STUN servers to find a direct path. Some strict networks (certain mobile
+carriers, school/office firewalls) block that; to cover them, run a TURN server and set
+`CHAT_TURN_URL` (comma-separated `turn:` URLs), `CHAT_TURN_USER` and `CHAT_TURN_PASS` in
+`deploy/wisp.service`.
 
 ## Auto-deploy
 

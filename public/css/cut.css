@@ -101,7 +101,7 @@
 .bc-playhead { position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; margin-left: -1px; background: #fff; pointer-events: none; z-index: 5; box-shadow: 0 0 4px rgba(0,0,0,.6); }
 .bc-playhead::before { content: ""; position: absolute; top: 0; left: -5px; border: 6px solid transparent; border-top-color: #fff; }
 .bc-snapline { position: absolute; top: 0; bottom: 0; width: 1px; background: #ffd400; pointer-events: none; z-index: 4; }
-.bc-ruler { position: absolute; top: 0; left: 0; height: 22px; font-size: 10px; color: var(--c-muted); cursor: pointer; }
+.bc-ruler { position: absolute; top: 0; left: 0; height: 22px; font-size: 10px; color: var(--c-muted); cursor: pointer; touch-action: none; }
 .bc-ruler span { position: absolute; top: 4px; transform: translateX(-50%); }
 .bc-ruler i { position: absolute; top: 10px; width: 2px; height: 2px; border-radius: 50%; background: #555a63; }
 .bc-row { position: absolute; left: 0; }

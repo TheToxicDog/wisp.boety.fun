@@ -7,6 +7,7 @@ import { initAnnotate } from "./annotate.js";
 import { initAccount, showAdmin } from "./accounts.js";
 import { initRecipes, showRecipes } from "./recipes.js";
 import { initChat, showChat } from "./chat.js";
+import { initPhoto, showPhoto } from "./photo.js";
 
 const app = $("#app");
 let me = null;
@@ -19,6 +20,7 @@ const TITLES = {
   admin: "People",
   recipes: "Recipes",
   chat: "Chat",
+  photo: "Photos",
 };
 
 // ───────── Routing ─────────
@@ -34,6 +36,7 @@ function route() {
   showAdmin(known === "admin");
   showRecipes(known === "recipes", new URLSearchParams(query));
   showChat(known === "chat");
+  showPhoto(known === "photo");
   closeDrawer();
 }
 
@@ -143,6 +146,7 @@ initAnnotate();
 initGateway();
 initBrowser();
 initRecipes();
+initPhoto();
 
 me = await initAccount();
 initChat();

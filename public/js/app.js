@@ -9,6 +9,7 @@ import { initRecipes, showRecipes } from "./recipes.js";
 import { initChat, showChat } from "./chat.js";
 import { initPhoto, showPhoto } from "./photo.js";
 import { initCut, showCut } from "./cut.js";
+import { initUpdates } from "./update.js";
 
 const app = $("#app");
 let me = null;
@@ -151,6 +152,7 @@ initBrowser();
 initRecipes();
 initPhoto();
 initCut();
+initUpdates();
 
 me = await initAccount();
 initChat();

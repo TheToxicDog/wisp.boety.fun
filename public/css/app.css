@@ -588,3 +588,11 @@ body.auth-page { overflow-y: auto; }
 .lightbox img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 6px; }
 .lightbox-bar { position: absolute; left: 0; right: 0; bottom: calc(16px + var(--safe-b)); display: flex; justify-content: center; gap: 10px; }
 .lightbox-bar .btn { display: inline-flex; align-items: center; text-decoration: none; color: var(--text); }
+
+/* ───────── Update available ───────── */
+.update-bar {
+  position: fixed; left: 50%; bottom: calc(16px + var(--safe-b)); transform: translateX(-50%); z-index: 2000;
+  display: flex; align-items: center; gap: 12px; padding: 8px 8px 8px 16px; border-radius: 12px;
+  background: var(--surface); color: var(--text); border: 1px solid var(--line); box-shadow: var(--shadow); font-size: 14px;
+}
+.update-bar button { border: 0; border-radius: 8px; padding: 8px 14px; font-weight: 600; background: var(--accent); color: var(--accent-ink); }

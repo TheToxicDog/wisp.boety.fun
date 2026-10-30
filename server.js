@@ -50,7 +50,7 @@ app.use("/api/chat", chatRouter());
 app.get("/api/version", (_req, res) => {
   let deploy = null;
   try { deploy = JSON.parse(readFileSync(join(DATA_DIR, "deploy.json"), "utf8")); } catch {}
-  res.set("Cache-Control", "no-store").json({ deploy, started: new Date(stats.started).toISOString() });
+  res.set("Cache-Control", "no-store").json({ deploy, assets: pages.version, started: new Date(stats.started).toISOString() });
 });
 
 app.get("/api/status", requireUser, (req, res) => {

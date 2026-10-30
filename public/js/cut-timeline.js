@@ -145,8 +145,11 @@ export class Timeline {
 
   // Keep the scroll position matched to the editor time.
   syncScroll() {
+    const left = this.ed.T * this.pps;
+    // skip writes that would not move the view: each one costs a layout on mobile
+    if (Math.abs(this.scroll.scrollLeft - left) < 0.5) return;
     this.programmatic = true;
-    this.scroll.scrollLeft = this.ed.T * this.pps;
+    this.scroll.scrollLeft = this.lastSynced = left;
     requestAnimationFrame(() => { this.programmatic = false; });
   }
 
@@ -159,7 +162,9 @@ export class Timeline {
   bind() {
     const sc = this.scroll;
     sc.addEventListener("scroll", () => {
-      if (this.programmatic || this.drag) return;
+      if (this.programmatic || this.drag || this.scrub) return;
+      // echo of our own syncScroll (it can land after the flag clears on iOS): not a user scroll
+      if (Math.abs(sc.scrollLeft - (this.lastSynced ?? -1)) < 1) return;
       if (this.ed.playing) this.ed.pause();
       this.ed.seek(sc.scrollLeft / this.pps, { fromTimeline: true });
     }, { passive: true });
@@ -194,6 +199,30 @@ export class Timeline {
       }
       if (!e.target.closest("button")) this.ed.select(null);
     });
+
+    // drag the ruler to scrub: content follows the finger, the playhead stays put
+    const ruler = this.content;
+    ruler.addEventListener("pointerdown", (e) => {
+      const r = e.target.closest(".bc-ruler");
+      if (!r || e.button > 0) return;
+      e.preventDefault();
+      if (this.ed.playing) this.ed.pause();
+      this.scrub = { pointer: e.pointerId, x0: e.clientX, t0: this.ed.T, moved: false };
+      r.setPointerCapture(e.pointerId);
+    });
+    ruler.addEventListener("pointermove", (e) => {
+      const s = this.scrub;
+      if (!s || e.pointerId !== s.pointer) return;
+      if (!s.moved && Math.abs(e.clientX - s.x0) < 4) return;
+      s.moved = true;
+      this.justDragged = true;
+      this.ed.seek(s.t0 - (e.clientX - s.x0) / this.pps);
+    });
+    const scrubEnd = (e) => {
+      if (this.scrub?.pointer === e.pointerId) this.scrub = null;
+    };
+    ruler.addEventListener("pointerup", scrubEnd);
+    ruler.addEventListener("pointercancel", scrubEnd);
 
     sc.addEventListener("pointerdown", (e) => {
       const ce = e.target.closest("[data-clip]");

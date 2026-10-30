@@ -27,11 +27,17 @@ function activated(reg) {
   });
 }
 
-export function initRuntime(onStatus) {
-  ready = (async () => {
-    if (!("serviceWorker" in navigator)) throw new Error("Service workers are unavailable in this browser");
+// Names the startup step in the error, shown when the status pill is tapped.
+async function step(name, fn) {
+  try { return await fn(); }
+  catch (err) { throw new Error(`${name}: ${err?.message || err}`, { cause: err }); }
+}
+
+async function startRuntime() {
+  if (!("serviceWorker" in navigator)) throw new Error("Service workers are unavailable in this browser");
+  if (!scramjet) {
     const { ScramjetController } = window.$scramjetLoadController();
-    scramjet = new ScramjetController({
+    const controller = new ScramjetController({
       prefix: SW_SCOPE,
       files: {
         wasm: "/scram/scramjet.wasm.wasm",
@@ -39,23 +45,51 @@ export function initRuntime(onStatus) {
         sync: "/scram/scramjet.sync.js",
       },
     });
-    await scramjet.init();
+    await step("Isolation runtime", () => controller.init());
+    scramjet = controller;
+  }
+  await step("Service worker", async () => {
     // Drop workers left at other scopes by earlier versions of this site.
     for (const r of await navigator.serviceWorker.getRegistrations()) {
       if (r.scope !== location.origin + SW_SCOPE) await r.unregister();
     }
     await activated(await navigator.serviceWorker.register(SW_URL, { scope: SW_SCOPE }));
-    connection = new window.BareMux.BareMuxConnection("/baremux/worker.js");
-    await setTransport();
+  });
+  connection ||= new window.BareMux.BareMuxConnection("/baremux/worker.js");
+  await step("Transport", setTransport);
+}
+
+// Retries a couple of times: right after a gateway restart a step can fail once.
+export function initRuntime(onStatus) {
+  ready = (async () => {
+    for (let attempt = 1; ; attempt++) {
+      try { return await startRuntime(); }
+      catch (err) {
+        console.error(err);
+        if (attempt >= 3) throw err;
+        onStatus("pending", `${err.message} (retrying)`);
+        await new Promise((r) => setTimeout(r, 1500 * attempt));
+      }
+    }
   })();
-  ready.then(() => onStatus("ok"), (err) => { console.error(err); onStatus("bad", err.message); });
+  ready.then(() => onStatus("ok", transportNote), (err) => onStatus("bad", err.message));
   return ready;
 }
 
 // Epoxy, wrapped so a dropped relay connection is redialed (transport.mjs).
 // Carries this file's ?v= stamp: the worker has no import map (see lib/pages.js).
+// If the wrapper can't load, plain epoxy still works (without redialing).
+let transportNote = "";
 export async function setTransport() {
-  await connection.setTransport(`/js/transport.mjs${new URL(import.meta.url).search}`, [{ wisp: wispUrl() }]);
+  const wisp = wispUrl();
+  try {
+    await connection.setTransport(`/js/transport.mjs${new URL(import.meta.url).search}`, [{ wisp }]);
+    transportNote = "";
+  } catch (err) {
+    console.warn("Reconnecting transport failed, using plain epoxy", err);
+    transportNote = `Using plain transport (auto-reconnect unavailable: ${err?.message || err})`;
+    await connection.setTransport("/epoxy/index.mjs", [{ wisp }]);
+  }
 }
 
 // ───────── URL handling ─────────

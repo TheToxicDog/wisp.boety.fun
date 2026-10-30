@@ -8,6 +8,7 @@ import { initAccount, showAdmin } from "./accounts.js";
 import { initRecipes, showRecipes } from "./recipes.js";
 import { initChat, showChat } from "./chat.js";
 import { initPhoto, showPhoto } from "./photo.js";
+import { initCut, showCut } from "./cut.js";
 
 const app = $("#app");
 let me = null;
@@ -21,6 +22,7 @@ const TITLES = {
   recipes: "Recipes",
   chat: "Chat",
   photo: "Photos",
+  cut: "BoetyCut",
 };
 
 // ───────── Routing ─────────
@@ -37,6 +39,7 @@ function route() {
   showRecipes(known === "recipes", new URLSearchParams(query));
   showChat(known === "chat");
   showPhoto(known === "photo");
+  showCut(known === "cut");
   closeDrawer();
 }
 
@@ -147,6 +150,7 @@ initGateway();
 initBrowser();
 initRecipes();
 initPhoto();
+initCut();
 
 me = await initAccount();
 initChat();

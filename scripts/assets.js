@@ -1,4 +1,5 @@
-// Copies the pre-built runtime bundles (Scramjet, bare-mux, epoxy WASM) into
+// Copies the pre-built runtime bundles (Scramjet, bare-mux, epoxy WASM, and
+// mediabunny for the BoetyCut video editor) into
 // the static web root so Nginx/Cloudflare can serve them directly.
 // `node scripts/assets.js --verify` only checks that they are present.
 import { cpSync, existsSync, rmSync, statSync } from "node:fs";
@@ -8,12 +9,16 @@ import { scramjetPath } from "@mercuryworkshop/scramjet/path";
 import { baremuxPath } from "@mercuryworkshop/bare-mux/node";
 import { epoxyPath } from "@mercuryworkshop/epoxy-transport";
 
+// mediabunny doesn't export its package.json, so locate it beside the others.
+
 const root = join(dirname(fileURLToPath(import.meta.url)), "..", "public");
+const mediabunnyPath = join(root, "..", "node_modules", "mediabunny", "dist", "bundles");
 
 export const bundles = [
   { from: scramjetPath, to: "scram", files: ["scramjet.all.js", "scramjet.sync.js", "scramjet.wasm.wasm"] },
   { from: baremuxPath, to: "baremux", files: ["index.js", "worker.js"] },
   { from: epoxyPath, to: "epoxy", files: ["index.mjs"] },
+  { from: mediabunnyPath, to: "mediabunny", files: ["mediabunny.min.mjs"], only: true },
 ];
 
 export function verifyAssets() {
@@ -31,6 +36,10 @@ function copy() {
   for (const b of bundles) {
     const dest = join(root, b.to);
     rmSync(dest, { recursive: true, force: true });
+    if (b.only) {
+      for (const f of b.files) cpSync(join(b.from, f), join(dest, f));
+      continue;
+    }
     cpSync(b.from, dest, { recursive: true, filter: (src) => !src.endsWith(".map") && !src.endsWith(".d.ts") });
   }
 }

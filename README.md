@@ -234,3 +234,25 @@ cd photo && cargo test --release            # engine unit tests
 
 Originals and edits are stored in the browser's IndexedDB; edits are non-destructive.
 Press `?` in the module for keyboard shortcuts.
+
+## BoetyCut (video editor)
+
+`#/cut` is a CapCut-style video editor that runs in the browser and works on phones and iPads.
+It ports ideas and code from [OpenCut](https://github.com/OpenCut-app/opencut-classic) (MIT):
+the mediabunny frame cache, the export pipeline, the SRT parser, bezier keyframe easing and the
+Whisper captions worker. OpenCut's React/Next.js UI is replaced by plain modules (`public/js/cut*.js`)
+with a CapCut layout: preview, transport and a centre-playhead timeline, with a bottom toolbar and
+tool sheets on phones, and media library / inspector sidebars on desktop.
+
+- **Media**: video, photos and music; decoding and encoding use [mediabunny](https://mediabunny.dev)
+  (MPL-2.0, copied to `public/mediabunny/` by `npm install`) over WebCodecs, compositing uses WebGL2.
+- **Timeline**: magnetic main track, overlay / text / sticker / effect / filter / adjustment / audio
+  tracks, trim, move, reorder, split, snapping, pinch zoom, mute/hide tracks, undo/redo.
+- **Clip tools**: speed (and speed curves), volume and fades, in/out/combo animations, keyframes,
+  transform, opacity, blend modes, filters, adjustments, 30 effects, masks, chroma key, crop, mirror,
+  rotate, freeze frame, reverse, extract audio, replace, duplicate.
+- **Also**: 23 transitions, text with templates, fonts, stroke, background, shadow and typewriter
+  animation, emoji and image stickers, voiceover recording, SRT import/export, auto captions
+  (Whisper, downloaded on first use), canvas ratio and background, export to MP4/WebM up to 4K.
+
+Projects and media are stored in the browser's IndexedDB.

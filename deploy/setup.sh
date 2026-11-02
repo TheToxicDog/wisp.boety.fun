@@ -16,6 +16,14 @@ export DEBIAN_FRONTEND=noninteractive
 step() { printf '\n\033[1;34m==> %s\033[0m\n' "$*"; }
 [ "$(id -u)" = 0 ] || { echo "Run with sudo: curl -fsSL ... | sudo bash" >&2; exit 1; }
 
+# Wait for a running auto-deploy (or another setup) to finish: two at once
+# both run npm ci in the same folder and break each other. Auto-deploy holds
+# this lock itself and runs setup in fast mode, so only lock otherwise.
+if [ "$FAST" != 1 ]; then
+  exec 9>/run/wisp-deploy.lock
+  flock -n 9 || { echo "Waiting for a deploy in progress to finish..."; flock 9; }
+fi
+
 if [ "$FAST" != 1 ]; then
   step "Installing packages"
   apt-get update -qq

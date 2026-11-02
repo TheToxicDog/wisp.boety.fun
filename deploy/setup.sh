@@ -48,6 +48,39 @@ systemctl enable wisp >/dev/null 2>&1
 systemctl enable --now wisp-deploy.timer >/dev/null 2>&1
 systemctl restart wisp
 
+# Stremio streaming server, for Stremio Web in the isolated browser (README:
+# "Stremio"). Optional: a failure here leaves the gateway deploy alone.
+# WISP_STREMIO=0 skips it.
+STREMIO_VERSION=v4.20.12
+STREMIO_SHA256=a527f3dd20c6e7b35eb2077cebcf859cba8140602f26f10f8e89c3c1a08eac13
+STREMIO_DIR=/opt/stremio-server
+install_stremio() {
+  if ! command -v ffmpeg >/dev/null; then
+    # Also on auto-deploys (fast mode), once, so existing servers pick it up.
+    apt-get install -y -qq ffmpeg >/dev/null 2>&1 || { apt-get update -qq && apt-get install -y -qq ffmpeg >/dev/null; } || return 1
+  fi
+  id stremio >/dev/null 2>&1 || useradd --system --home /var/lib/stremio-server --shell /usr/sbin/nologin stremio || return 1
+  mkdir -p "$STREMIO_DIR"
+  local changed=0
+  if ! echo "$STREMIO_SHA256  $STREMIO_DIR/server.js" | sha256sum -c --quiet >/dev/null 2>&1; then
+    curl -fsSL -o "$STREMIO_DIR/server.js.new" "https://dl.strem.io/server/$STREMIO_VERSION/desktop/server.js" || return 1
+    echo "$STREMIO_SHA256  $STREMIO_DIR/server.js.new" | sha256sum -c --quiet || { rm -f "$STREMIO_DIR/server.js.new"; echo "checksum mismatch" >&2; return 1; }
+    mv "$STREMIO_DIR/server.js.new" "$STREMIO_DIR/server.js"
+    changed=1
+  fi
+  cmp -s deploy/stremio-server.service /etc/systemd/system/stremio-server.service || changed=1
+  cp deploy/stremio-server.service /etc/systemd/system/stremio-server.service
+  systemctl daemon-reload
+  systemctl enable stremio-server >/dev/null 2>&1
+  # Restarting cuts off anyone watching, so only when something changed.
+  if [ "$changed" = 1 ] || ! systemctl is-active -q stremio-server; then systemctl restart stremio-server; fi
+}
+if [ "${WISP_STREMIO:-1}" != 0 ]; then
+  step "Stremio streaming server"
+  if install_stremio; then echo "stremio-server $STREMIO_VERSION: running"
+  else echo "stremio-server: install failed (the gateway is unaffected). Check: journalctl -u stremio-server -n 50" >&2; fi
+fi
+
 step "TLS certificate"
 mkdir -p /etc/ssl/cloudflare
 if [ ! -s "$CERT" ] || [ ! -s "$KEY" ]; then

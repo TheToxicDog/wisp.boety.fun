@@ -1,0 +1,39 @@
+# /etc/systemd/system/stremio-server.service
+#
+# Stremio's streaming server (torrent streaming + HLS transcoding with ffmpeg),
+# so Stremio Web in the isolated browser can play on iPad. deploy/setup.sh
+# downloads server.js (pinned, checksummed) to /opt/stremio-server.
+# Listens on 11470 (and 12470); the firewall keeps both closed to the outside,
+# and the gateway relays /stremio-server/ to it for signed-in users only.
+[Unit]
+Description=Stremio streaming server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=stremio
+WorkingDirectory=/var/lib/stremio-server
+ExecStart=/usr/bin/node /opt/stremio-server/server.js
+Environment=NODE_ENV=production
+# Settings and the torrent cache (2 GB by default) live here.
+Environment=APP_PATH=/var/lib/stremio-server
+Environment=HOME=/var/lib/stremio-server
+Environment=FFMPEG_BIN=/usr/bin/ffmpeg
+Environment=FFPROBE_BIN=/usr/bin/ffprobe
+# No Chromecast/DLNA discovery on a server.
+Environment=CASTING_DISABLED=1
+Restart=always
+RestartSec=5
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+StateDirectory=stremio-server
+StateDirectoryMode=0700
+# Like the Wisp relay: no reaching the host's private networks (its /proxy/
+# endpoint fetches any URL it's given). Loopback stays open; it calls itself.
+IPAddressDeny=10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 169.254.0.0/16 100.64.0.0/10 fc00::/7 fe80::/10
+
+[Install]
+WantedBy=multi-user.target

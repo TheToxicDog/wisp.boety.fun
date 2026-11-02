@@ -13,6 +13,7 @@ import { getRecipe, fetchPage } from "./lib/recipe.js";
 import { renderRecipePdf, pdfFilename } from "./lib/recipe-pdf.js";
 import { chatRouter, chatUpgrade } from "./lib/chat.js";
 import { loadPages } from "./lib/pages.js";
+import { STREMIO_PATH, stremioProxy } from "./lib/stremio.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT || 8080);
@@ -73,6 +74,9 @@ app.get("/api/status", requireUser, (req, res) => {
     memoryMB: Math.round(process.memoryUsage().rss / 1048576),
   });
 });
+
+// Stremio streaming server (lib/stremio.js); reached from isolated frames via public/sw.js.
+app.use(STREMIO_PATH, requireUser, stremioProxy);
 
 // ───────── Recipe reader ─────────
 const sendError = (res, err) => res.status(err.status || 500).json({ error: err.status ? err.message : "Something went wrong reading that page" });

@@ -73,7 +73,7 @@ sudo systemctl enable --now wisp
    `/etc/ssl/cloudflare/wisp.boety.fun.pem` and the key as `/etc/ssl/cloudflare/wisp.boety.fun.key`
    (`chmod 600` the key).
 4. **Network**: **WebSockets** on.
-5. **Caching → Cache Rules**: bypass cache when the URI path starts with `/wisp/`, `/chat/` or `/api/`.
+5. **Caching → Cache Rules**: bypass cache when the URI path starts with `/wisp/`, `/chat/`, `/api/` or `/stremio-server/`.
 6. **Speed → Optimization**: turn **Rocket Loader** off (it rewrites scripts and breaks the runtime).
 7. Optional, stronger origin shielding: **SSL/TLS → Origin Server → Authenticated Origin Pulls** on,
    then uncomment the two `ssl_*client*` lines in `deploy/nginx.conf`.
@@ -138,6 +138,26 @@ Recipes that nearly fit on one page are tightened slightly so they don't spill o
 The fetcher only reaches public addresses (no loopback, private, link-local or metadata IPs,
 checked after DNS resolution and on every redirect), standard ports, 8 MB max, 15 s timeout.
 Some sites block automated readers; the reader says so when that happens.
+
+## Stremio
+
+Open `web.stremio.com` in the **Isolated Browser** and use it as usual: no setup on the iPad.
+
+Safari on iPad can't play most streams by itself (MKV files, HEVC, AC3/DTS audio, and torrents
+at all), so Stremio Web needs its *streaming server*, which fetches the stream and converts it
+with ffmpeg into HLS that Safari plays. `deploy/setup.sh` runs one on the VPS
+(`stremio-server.service`, Stremio's own `server.js`, pinned and checksum-checked, plus ffmpeg).
+
+- Stremio Web looks for the server at its default address, `http://127.0.0.1:11470`. Inside the
+  isolated browser the service worker (`public/sw.js`) sends that address to
+  `/stremio-server/` on the gateway, which relays it to the server for signed-in users only
+  (`lib/stremio.js`). Leave Stremio's **Settings → Streaming server URL** at its default.
+- Ports 11470/12470 stay closed to the internet (the firewall only opens 80/443 to Cloudflare).
+- Torrent cache and server settings: `/var/lib/stremio-server` (2 GB cache by default).
+- Logs: `journalctl -u stremio-server -n 50`. Skip installing it with `WISP_STREMIO=0`.
+- Transcoding is CPU-heavy: a small VPS may manage one 1080p stream at a time.
+- Cloudflare's terms limit serving lots of video through its proxy on the free plan; heavy use may
+  get flagged.
 
 ## Chat
 

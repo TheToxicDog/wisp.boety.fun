@@ -23,7 +23,10 @@ if command -v ufw >/dev/null && [ "${SKIP_UFW:-0}" != 1 ]; then
   # Remove previous Cloudflare rules, then re-add the current ranges.
   while ufw status numbered | grep -q 'cloudflare'; do
     n=$(ufw status numbered | grep 'cloudflare' | head -1 | sed -E 's/^\[ *([0-9]+)\].*/\1/')
-    yes | ufw delete "$n" >/dev/null
+    # --force, not `yes |`: under pipefail, yes dies of SIGPIPE once ufw has
+    # its answer, which ended this script after deleting a single rule (each
+    # run dropped one more Cloudflare range and never re-added any).
+    ufw --force delete "$n" >/dev/null
   done
   for ip in $V4 $V6; do
     ufw allow proto tcp from "$ip" to any port 80,443 comment cloudflare >/dev/null

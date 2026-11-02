@@ -8,11 +8,19 @@ DIR=${WISP_DIR:-/opt/wisp.boety.fun}
 STATE=${WISP_STATE:-/var/lib/wisp/deploy.json}
 LOG=${WISP_LOG:-/var/log/wisp-deploy.log}
 
+# systemd starts this without HOME. Git then can't read the global
+# safe.directory setting and refuses the repo (owned by the wisp user, run
+# as root): every fetch failed and nothing ever deployed. Set both here.
+export HOME=${HOME:-/root}
+export GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=safe.directory GIT_CONFIG_VALUE_0="$DIR"
+
 exec 9>"${WISP_LOCK:-/run/wisp-deploy.lock}"
 flock -n 9 || exit 0
 cd "$DIR" || exit 1
-git config --global --get-all safe.directory | grep -qx "$DIR" || git config --global --add safe.directory "$DIR"
-git fetch -q origin master || exit 0
+if ! err=$(git fetch -q origin master 2>&1); then
+  echo "=== $(date -u +%FT%TZ) fetch failed: $err" >> "$LOG"
+  exit 0
+fi
 
 OLD=$(git rev-parse HEAD)
 NEW=$(git rev-parse origin/master)
